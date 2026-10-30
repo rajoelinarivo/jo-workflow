@@ -6,9 +6,10 @@ import path from "node:path";
 import readline from "node:readline/promises";
 import { spawnSync } from "node:child_process";
 import { exists, write, json, readJson, walk } from "./util.js";
-import { Project, defaultManifest, loadCatalog, readItems, CATALOG, GENERATOR_ROOT, SYSTEMS, KINDS, KIND_DIRS, HOOK_EVENTS } from "./project.js";
+import { Project, defaultManifest, loadCatalog, readItems, itemPath, CATALOG, GENERATOR_ROOT, SYSTEMS, KINDS, KIND_DIRS, HOOK_EVENTS } from "./project.js";
 import { detectStacks, applyStacks } from "./stacks.js";
 import { sync } from "./sync.js";
+import { upgrade, adopt, installFromCatalog } from "./maintain.js";
 
 const VERSION = readJson(path.join(GENERATOR_ROOT, "package.json"), {}).version || "dev";
 
@@ -38,6 +39,13 @@ Commands:
       --dry-run              Show what would change
       --force                Overwrite files modified by hand
   status                     Same as sync --dry-run
+  upgrade                    Update installed elements from the generator's catalog,
+                             except those you changed (--force replaces them too)
+      --dry-run              Show what would be upgraded
+  adopt <file>...            Keep hand edits of generated files: skill and agent files go
+                             back to their .harness/ source (and reach every system),
+                             other files become overrides in .harness/overrides/
+      --override             Keep the edit for this file only, as an override
   detect                     Detect the stack and fill empty commands in harness.json
   loop <name> [--system S] [--max N] [--dry-run]
                              Run an autonomous loop headless until its check passes
@@ -72,6 +80,7 @@ function parseArgs(argv) {
     else if (a === "--dry-run") opts.dryRun = true;
     else if (a === "--minimal") opts.minimal = true;
     else if (a === "--catalog") opts.catalog = true;
+    else if (a === "--override") opts.override = true;
     else if (a.startsWith("-")) throw new UsageError(`unknown option '${a}' (see --help)`);
     else opts._.push(a);
   }
@@ -106,7 +115,10 @@ function printReport(r, { dryRun }) {
   for (const f of r.updated) console.log(`  ${verb}update  ${f}`);
   for (const f of r.merged) console.log(`  ${verb}merge   ${f}`);
   for (const f of r.deleted) console.log(`  ${verb}delete  ${f}`);
-  for (const c of r.conflicts) console.log(`  keep    ${c.path} (${c.reason}; use --force to overwrite)`);
+  for (const c of r.conflicts) {
+    const hint = c.reason === "modified by hand" ? "'adopt' it to keep the change, or --force to overwrite" : "use --force to overwrite";
+    console.log(`  keep    ${c.path} (${c.reason}; ${hint})`);
+  }
   for (const f of r.orphans) console.log(`  keep    ${f} (no longer generated but modified by hand; delete it yourself)`);
   for (const w of r.warnings) console.log(`  warning ${w}`);
   const changes = r.created.length + r.updated.length + r.merged.length + r.deleted.length;
@@ -114,25 +126,11 @@ function printReport(r, { dryRun }) {
   return 0;
 }
 
-const runSync = (project, opts) => printReport(sync(project, { force: opts.force, dryRun: opts.dryRun }), opts);
+const runSync = (project, opts, forcePaths) => printReport(sync(project, { force: opts.force, dryRun: opts.dryRun, forcePaths }), opts);
 
 // ---------------------------------------------------------------- elements
 
-function catalogItem(kind, name) {
-  return readItems(CATALOG, kind).find((i) => i.name === name);
-}
-
-function copyDir(src, dest) {
-  for (const f of walk(src)) {
-    fs.mkdirSync(path.dirname(path.join(dest, f)), { recursive: true });
-    fs.copyFileSync(path.join(src, f), path.join(dest, f));
-  }
-}
-
-function targetOf(project, kind, name) {
-  const base = path.join(project.harness, KIND_DIRS[kind]);
-  return kind === "skill" || kind === "hook" ? path.join(base, name) : path.join(base, `${name}.md`);
-}
+const targetOf = (project, kind, name) => itemPath(project.harness, kind, name);
 
 function scaffold(kind, name) {
   switch (kind) {
@@ -157,16 +155,12 @@ function scaffold(kind, name) {
 function addElement(project, kind, name, opts) {
   const dest = targetOf(project, kind, name);
   if (exists(dest) && !opts.force) throw new UsageError(`${kind} '${name}' already exists (${path.relative(project.root, dest)}); use --force to replace it`);
-  const item = catalogItem(kind, name);
-  if (item) {
-    if (kind === "skill" || kind === "hook") copyDir(item.dir, dest);
-    else {
-      fs.mkdirSync(path.dirname(dest), { recursive: true });
-      fs.copyFileSync(path.join(CATALOG, KIND_DIRS[kind], `${name}.md`), dest);
-    }
+  if (readItems(CATALOG, kind).some((i) => i.name === name)) {
+    project.recordCatalog(kind, name, installFromCatalog(project, kind, name));
     return "catalog";
   }
   if (kind === "skill" && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(name)) throw new UsageError(`skill names use lowercase letters, digits and single hyphens`);
+  fs.rmSync(dest, { recursive: true, force: true });
   const content = scaffold(kind, name);
   if (typeof content === "string") write(dest, content);
   else for (const [f, c] of Object.entries(content)) write(path.join(dest, f), c);
@@ -213,6 +207,7 @@ function cmdRemove(project, [kind, name], opts) {
   const target = targetOf(project, kind, name);
   if (!exists(target)) throw new UsageError(`${kind} '${name}' is not installed`);
   fs.rmSync(target, { recursive: true });
+  project.recordCatalog(kind, name, null);
   console.log(`Removed ${kind} '${name}'.`);
   return runSync(project, opts);
 }
@@ -259,6 +254,27 @@ function cmdDetect(project, opts) {
   return runSync(project, opts);
 }
 
+function cmdUpgrade(project, opts) {
+  const r = upgrade(project, { force: opts.force, dryRun: opts.dryRun });
+  const verb = opts.dryRun ? "would upgrade" : "upgrade";
+  for (const k of r.updated) console.log(`  ${verb}  ${k}`);
+  for (const k of r.modified) console.log(`  keep     ${k} (changed in .harness/; --force replaces it with the catalog version)`);
+  if (r.available.length) console.log(`  new in catalog (install with 'add <kind> <name>'): ${r.available.join(", ")}`);
+  console.log(`${r.updated.length} upgraded, ${r.current.length} already current, ${r.modified.length} kept, ${r.custom.length} custom.`);
+  if (opts.dryRun) return 0;
+  return runSync(project, opts);
+}
+
+function cmdAdopt(project, paths, opts) {
+  if (!paths.length) throw new UsageError("usage: adopt <generated-file>... [--override]");
+  const r = adopt(project, paths, { override: opts.override });
+  for (const a of r.adopted) console.log(`  adopt   ${a.path} -> ${a.into}`);
+  for (const s of r.skipped) console.log(`  skip    ${s.path} (${s.reason})`);
+  if (!r.adopted.length) return r.skipped.length ? 1 : 0;
+  console.log("Review the result with 'git diff .harness' (placeholders are restored where the source used them).");
+  return runSync(project, { ...opts, force: false }, r.forcePaths);
+}
+
 function cmdLoop(project, [name], opts) {
   if (!name) throw new UsageError("usage: loop <name> [--system S] [--max N] [--dry-run]");
   const runner = path.join(project.harness, "runtime", "loop.mjs");
@@ -298,6 +314,10 @@ export async function main(argv) {
       return needsHarness(() => runSync(project, opts));
     case "status":
       return needsHarness(() => runSync(project, { ...opts, dryRun: true }));
+    case "upgrade":
+      return needsHarness(() => cmdUpgrade(project, opts));
+    case "adopt":
+      return needsHarness(() => cmdAdopt(project, rest, opts));
     case "detect":
       return needsHarness(() => cmdDetect(project, opts));
     case "loop":
