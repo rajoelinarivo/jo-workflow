@@ -1,6 +1,6 @@
 @echo off
-rem workflow-generator.bat - launcher for the Node.js engine (src\cli.js).
-rem Usage: workflow-generator.bat --help
+rem jo-workflow.bat - launcher for the Node.js engine (src\cli.js).
+rem Usage: jo-workflow.bat --help
 setlocal
 
 where node >nul 2>nul

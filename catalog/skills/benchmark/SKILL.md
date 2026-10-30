@@ -15,7 +15,7 @@ argument-hint: "[code path or operation to benchmark]"
 ## 2. Use proper tooling
 - Use the ecosystem's benchmark harness (built-in benchmark support of the language's test tooling, or the de facto benchmarking library) rather than ad-hoc timers. They handle warmup, iteration counts and statistics.
 - For whole-program or HTTP benchmarks, use a load tool with fixed concurrency, duration and warmup.
-- Run via `{{commands.bench}}` if configured; otherwise add a bench entry point and set it in `.harness/harness.json`, then `workflow-generator sync`.
+- Run via `{{commands.bench}}` if configured; otherwise add a bench entry point and set it in `.harness/harness.json`, then `jo-workflow sync`.
 - Prevent dead-code elimination: consume the results (sink/black-box functions).
 
 ## 3. Control the environment

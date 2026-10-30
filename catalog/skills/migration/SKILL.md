@@ -45,7 +45,7 @@ Create `MIGRATION.md` at the repo root with ordered, independently verifiable it
 ## Rollback
 <how to revert each phase>
 ```
-Each item must be small enough for one iteration. The `migrate-step` loop (`workflow-generator loop migrate-step`) takes the next `- [ ]` item, implements it, runs tests and checks it off; it stops when no `- [ ]` remain. Only check an item when its verification passes.
+Each item must be small enough for one iteration. The `migrate-step` loop (`jo-workflow loop migrate-step`) takes the next `- [ ]` item, implements it, runs tests and checks it off; it stops when no `- [ ]` remain. Only check an item when its verification passes.
 
 ## 6. Execute each item
 1. Implement the change for that item only.
@@ -60,7 +60,7 @@ Each item must be small enough for one iteration. The `migrate-step` loop (`work
 ## Definition of done
 - Every checklist item checked; shims and old code removed.
 - Regression baseline shows no unexplained differences; explained ones are documented.
-- Commands in `.harness/harness.json` updated if tooling changed (`workflow-generator detect`, then `sync`).
+- Commands in `.harness/harness.json` updated if tooling changed (`jo-workflow detect`, then `sync`).
 - Lessons in `.harness/memory/lessons.md`; decisions in `decisions.md`; `architecture.md` updated.
 
 ## Pitfalls

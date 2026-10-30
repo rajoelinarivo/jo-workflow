@@ -1,4 +1,4 @@
-# workflow-generator
+# jo-workflow
 
 Génère et maintient le harnais d'agents IA d'un projet (skills, subagents, hooks,
 memory, loops) pour **Claude Code**, **OpenCode** et **Codex**, quel que soit le stack.
@@ -39,29 +39,29 @@ Le dev peut lancer `/dev <demande>` (`$dev <demande>` sous Codex). L'orchestrate
 ## Prérequis et installation
 
 - Node.js 18 ou plus récent (aucune dépendance npm).
-- Lancer `workflow-generator.bat` (Windows) ou `workflow-generator.sh` (Linux, macOS, Git Bash).
-- Pour que les agents puissent aussi lancer `workflow-generator sync`, l'installer sur le PATH :
+- Lancer `jo-workflow.bat` (Windows) ou `jo-workflow.sh` (Linux, macOS, Git Bash).
+- Pour que les agents puissent aussi lancer `jo-workflow sync`, l'installer sur le PATH :
   `npm link` dans ce dossier.
 
 ## Utilisation
 
-`workflow-generator` sans argument affiche l'aide. Dans un projet équipé, elle montre aussi
+`jo-workflow` sans argument affiche l'aide. Dans un projet équipé, elle montre aussi
 son état : systèmes, éléments, tâches ouvertes, fichiers à synchroniser. L'aide détaillée
-d'une commande s'obtient avec `workflow-generator help <commande>` ou `<commande> --help`.
+d'une commande s'obtient avec `jo-workflow help <commande>` ou `<commande> --help`.
 
 ```sh
-workflow-generator init --systems claude,opencode   # crée .harness/ et génère tout
-workflow-generator add skill perf-audit             # nouveau skill, généré pour chaque système actif
-workflow-generator add hook format-on-edit          # élément du catalogue
-workflow-generator remove skill benchmark
-workflow-generator system add codex                 # active un système de plus
-workflow-generator sync                             # après avoir modifié .harness/
-workflow-generator status                           # ce que sync changerait
-workflow-generator upgrade                          # met à jour depuis le catalogue ce que le dev n'a pas modifié
-workflow-generator adopt .claude/skills/x/SKILL.md  # rapatrie une modif faite à la main vers .harness/
-workflow-generator detect                           # détecte le stack, remplit les commandes vides
-workflow-generator loop fix-until-green             # itère en mode headless jusqu'à ce que les tests passent
-workflow-generator list --catalog
+jo-workflow init --systems claude,opencode   # crée .harness/ et génère tout
+jo-workflow add skill perf-audit             # nouveau skill, généré pour chaque système actif
+jo-workflow add hook format-on-edit          # élément du catalogue
+jo-workflow remove skill benchmark
+jo-workflow system add codex                 # active un système de plus
+jo-workflow sync                             # après avoir modifié .harness/
+jo-workflow status                           # ce que sync changerait
+jo-workflow upgrade                          # met à jour depuis le catalogue ce que le dev n'a pas modifié
+jo-workflow adopt .claude/skills/x/SKILL.md  # rapatrie une modif faite à la main vers .harness/
+jo-workflow detect                           # détecte le stack, remplit les commandes vides
+jo-workflow loop fix-until-green             # itère en mode headless jusqu'à ce que les tests passent
+jo-workflow list --catalog
 ```
 
 Options globales : `--dir DIR`, `--yes`, `--force`, `--dry-run`, `--minimal` (init).

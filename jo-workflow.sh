@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-# workflow-generator.sh - launcher for the Node.js engine (src/cli.js).
-# Usage: workflow-generator.sh --help
+# jo-workflow.sh - launcher for the Node.js engine (src/cli.js).
+# Usage: jo-workflow.sh --help
 set -eu
 
 if ! command -v node >/dev/null 2>&1; then
@@ -8,7 +8,7 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
-# Resolve the real script location, following symlinks (e.g. ~/bin/workflow-generator).
+# Resolve the real script location, following symlinks (e.g. ~/bin/jo-workflow).
 self=$0
 while [ -L "$self" ]; do
   link=$(readlink "$self")

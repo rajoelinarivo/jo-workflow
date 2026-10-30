@@ -98,7 +98,7 @@ export class Project {
   }
   manifest() {
     const m = readJson(this.manifestPath, null);
-    if (!m) throw new Error(`no harness here: ${this.manifestPath} not found (run 'workflow-generator init')`);
+    if (!m) throw new Error(`no harness here: ${this.manifestPath} not found (run 'jo-workflow init')`);
     const d = defaultManifest(m.name);
     return { ...d, ...m, commands: { ...d.commands, ...m.commands }, permissions: { ...d.permissions, ...m.permissions }, loop: { ...d.loop, ...m.loop }, orchestrator: { ...d.orchestrator, ...m.orchestrator } };
   }

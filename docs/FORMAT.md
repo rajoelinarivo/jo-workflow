@@ -1,7 +1,7 @@
 # Neutral harness format
 
-A project managed by `workflow-generator` keeps the **single source of truth** of its
-agent harness in `.harness/`. `workflow-generator sync` renders it into the files each
+A project managed by `jo-workflow` keeps the **single source of truth** of its
+agent harness in `.harness/`. `jo-workflow sync` renders it into the files each
 enabled system reads (Claude Code, OpenCode, Codex). Edit `.harness/`, then sync.
 
 ```
@@ -178,6 +178,6 @@ max-iterations: 10
 Prompt sent to the agent at each iteration.
 ```
 
-`workflow-generator loop <name> [--system claude|opencode|codex] [--max N]` runs the
+`jo-workflow loop <name> [--system claude|opencode|codex] [--max N]` runs the
 agent headless with the prompt, then the `until` command; it stops when that command
 exits 0 or after `max-iterations`.

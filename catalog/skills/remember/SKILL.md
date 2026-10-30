@@ -46,7 +46,7 @@ Use today's date in `YYYY-MM-DD`. Keep each entry to a few lines; link to files 
 - Before adding, search the file for an existing entry; update it instead of duplicating.
 - If a new decision replaces an old one, mark the old ADR `Status: superseded by ADR-NNN`; do not delete history.
 - Remove lessons that no longer apply (the trap was fixed at the root) and say so in the change summary.
-- `.harness/memory/` is the source of truth. Do not edit CLAUDE.md, AGENTS.md or other generated copies; run `workflow-generator sync` after editing if the rendered instructions must update now.
+- `.harness/memory/` is the source of truth. Do not edit CLAUDE.md, AGENTS.md or other generated copies; run `jo-workflow sync` after editing if the rendered instructions must update now.
 
 ## 5. Never store
 - Secrets, tokens, passwords, private keys, connection strings with credentials.

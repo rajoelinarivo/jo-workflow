@@ -37,7 +37,7 @@ For any change beyond a trivial fix: read the relevant memory and code, state th
 - Final message states what changed, how it was verified, and anything left open.
 
 ## Loops
-Autonomous loops run headless until a check passes: `workflow-generator loop <name>`.
+Autonomous loops run headless until a check passes: `jo-workflow loop <name>`.
 - `fix-until-green`: fix failing tests until `{{commands.test}}` passes.
 - `lint-clean`: fix lint errors until `{{commands.lint}}` passes.
 - `typecheck-clean`: fix type errors until `{{commands.typecheck}}` passes.
@@ -50,4 +50,4 @@ Autonomous loops run headless until a check passes: `workflow-generator loop <na
 - A coding rule -> `conventions.md`.
 - A structural change -> `architecture.md`.
 - Project facts or commands -> `project.md` / `.harness/harness.json`.
-Never store secrets. Never edit generated files (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.agents/`, `.opencode/`, `.codex/`); edit `.harness/` and run `workflow-generator sync`.
+Never store secrets. Never edit generated files (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.agents/`, `.opencode/`, `.codex/`); edit `.harness/` and run `jo-workflow sync`.

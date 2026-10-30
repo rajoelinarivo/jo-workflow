@@ -26,7 +26,7 @@ Use these commands; do not invent alternatives. If one is missing, say so instea
 - Typecheck: `{{commands.typecheck}}`
 - Benchmarks: `{{commands.bench}}`
 
-Commands are defined in `.harness/harness.json`. To change them, edit that file (or run `workflow-generator detect`), then `workflow-generator sync`.
+Commands are defined in `.harness/harness.json`. To change them, edit that file (or run `jo-workflow detect`), then `jo-workflow sync`.
 
 ## Local setup
 TODO: prerequisites, environment variables (names only, never values), how to start dependencies, how to run the app.

@@ -1,4 +1,4 @@
-// Help screens: a context-aware overview (bare `workflow-generator` or --help) and
+// Help screens: a context-aware overview (bare `jo-workflow` or --help) and
 // per-command help (`help <command>` or `<command> --help`).
 import fs from "node:fs";
 import path from "node:path";
@@ -146,8 +146,8 @@ function projectState(project) {
   if (!project.initialized) {
     return [
       `${yellow("No harness in this directory.")} Start with:`,
-      `  ${cyan("workflow-generator init")}            ${dim("# interactive")}`,
-      `  ${cyan("workflow-generator init --yes")}      ${dim("# all systems, full catalog")}`,
+      `  ${cyan("jo-workflow init")}            ${dim("# interactive")}`,
+      `  ${cyan("jo-workflow init --yes")}      ${dim("# all systems, full catalog")}`,
     ].join("\n");
   }
   try {
@@ -171,7 +171,7 @@ function projectState(project) {
     else {
       const pending = r.created.length + r.updated.length + r.merged.length + r.deleted.length;
       const hand = r.conflicts.filter((c) => c.reason === "modified by hand").length;
-      const state = pending ? yellow(`${pending} change(s) pending: run 'workflow-generator sync'`) : green("up to date");
+      const state = pending ? yellow(`${pending} change(s) pending: run 'jo-workflow sync'`) : green("up to date");
       lines.push(`  files     ${state}${hand ? yellow(`, ${hand} modified by hand (see 'help adopt')`) : ""}`);
     }
     return lines.join("\n");
@@ -182,11 +182,11 @@ function projectState(project) {
 
 export function overview(version, project) {
   const out = [
-    `${bold("workflow-generator")} ${version} - agent harness for Claude Code, OpenCode and Codex`,
+    `${bold("jo-workflow")} ${version} - agent harness for Claude Code, OpenCode and Codex`,
     "",
     projectState(project),
     "",
-    `${bold("Usage")}  workflow-generator <command> [options]`,
+    `${bold("Usage")}  jo-workflow <command> [options]`,
   ];
   const groups = [...new Set(COMMANDS.map((c) => c.group))];
   const width = Math.max(...COMMANDS.map((c) => c.name.length));
@@ -201,7 +201,7 @@ export function overview(version, project) {
     `  ${cyan("/dev <request>")}  runs the whole workflow (Codex: $dev); ${cyan("/dev")} alone resumes the open task.`,
     `  Skills stay usable directly: /bug-hunt, /refactor, /unit-tests ...`,
     "",
-    `Details on a command: ${cyan("workflow-generator help <command>")}`
+    `Details on a command: ${cyan("jo-workflow help <command>")}`
   );
   return out.join("\n");
 }
@@ -209,11 +209,11 @@ export function overview(version, project) {
 export function commandHelp(name) {
   const c = COMMANDS.find((x) => x.name === name);
   if (!c) return null;
-  const out = [`${bold("workflow-generator " + c.usage)}`, "", c.summary + "."];
+  const out = [`${bold("jo-workflow " + c.usage)}`, "", c.summary + "."];
   if (c.details) out.push("", c.details);
   if (c.options?.length) out.push("", bold("Options"), table(c.options));
-  if (c.examples?.length) out.push("", bold("Examples"), ...c.examples.map((e) => `  ${cyan("workflow-generator " + e)}`));
-  out.push("", dim("Global options: --dir DIR, --yes. Overview: workflow-generator help"));
+  if (c.examples?.length) out.push("", bold("Examples"), ...c.examples.map((e) => `  ${cyan("jo-workflow " + e)}`));
+  out.push("", dim("Global options: --dir DIR, --yes. Overview: jo-workflow help"));
   return out.join("\n");
 }
 

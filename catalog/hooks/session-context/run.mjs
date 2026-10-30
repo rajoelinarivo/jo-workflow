@@ -37,7 +37,7 @@ if (fs.existsSync(lock)) {
     walk(path.join(".harness", dir));
   }
   if (stale.length) {
-    lines.push(`Harness: ${stale.length} file(s) in .harness/ changed since the last sync (${stale.slice(0, 5).join(", ")}). Generated instructions may be outdated: run \`workflow-generator sync\` or read those files directly.`);
+    lines.push(`Harness: ${stale.length} file(s) in .harness/ changed since the last sync (${stale.slice(0, 5).join(", ")}). Generated instructions may be outdated: run \`jo-workflow sync\` or read those files directly.`);
   }
 }
 

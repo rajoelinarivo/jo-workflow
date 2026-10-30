@@ -44,7 +44,7 @@ Read `.harness/workflows/<name>.md`, then for each phase in order:
    Whatever the autonomy, stop and ask when: requirements are ambiguous, an action is destructive or irreversible, the scope grows, a security-sensitive choice appears, or the same check fails three times on the same problem.
 
 ## 4. When a check fails
-Go back to the phase that produced the code, fix the root cause, re-run the check. Never skip, disable or weaken tests, lint rules or type checks. If the remaining work is long and mechanical, suggest the matching loop to the user (`workflow-generator loop fix-until-green`, `lint-clean`, `typecheck-clean`, `migrate-step`).
+Go back to the phase that produced the code, fix the root cause, re-run the check. Never skip, disable or weaken tests, lint rules or type checks. If the remaining work is long and mechanical, suggest the matching loop to the user (`jo-workflow loop fix-until-green`, `lint-clean`, `typecheck-clean`, `migrate-step`).
 
 ## 5. Close
 1. Check the Definition of done from project memory.

@@ -38,7 +38,7 @@ Do not scaffold until the goal and the first increment fit in two sentences.
 
 ## 5. Register the harness
 - Fill `.harness/memory/project.md`: purpose, users, stack, entry points, how to run locally, external dependencies. Replace every TODO you can answer; leave the rest explicit.
-- Set the commands in `.harness/harness.json` (`install`, `build`, `test`, `test-unit`, `test-integration`, `lint`, `typecheck`, `format`, `bench`). Run `workflow-generator detect` to propose them from the detected stack, review the result, then run `workflow-generator sync` to regenerate the per-system files.
+- Set the commands in `.harness/harness.json` (`install`, `build`, `test`, `test-unit`, `test-integration`, `lint`, `typecheck`, `format`, `bench`). Run `jo-workflow detect` to propose them from the detected stack, review the result, then run `jo-workflow sync` to regenerate the per-system files.
 - Record stack-specific conventions (naming, layout, error handling) in `.harness/memory/conventions.md`.
 
 ## 6. Verify
@@ -52,7 +52,7 @@ Run in order and fix until each succeeds on a clean checkout:
 ## Definition of done
 - A fresh clone runs every configured command successfully.
 - One real behavior is implemented and tested.
-- Stack ADR recorded; project.md and harness.json commands filled; `workflow-generator sync` run.
+- Stack ADR recorded; project.md and harness.json commands filled; `jo-workflow sync` run.
 - No secrets, no generated build artifacts committed.
 
 ## Pitfalls

@@ -21,7 +21,7 @@ Phases run in order by the `dev` orchestrator. [gate] = stop for approval in gui
 - Done when: `MIGRATION.md` exists and is approved.
 
 ## 4. Migrate increments
-- Use: skill `migration`. For a long mechanical checklist, suggest `workflow-generator loop migrate-step`.
+- Use: skill `migration`. For a long mechanical checklist, suggest `jo-workflow loop migrate-step`.
 - Do: one checklist item at a time, tree working after each.
 - Check: build, test after every item
 

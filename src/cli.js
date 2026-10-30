@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// workflow-generator: creates and maintains an AI agent harness (.harness/) and
+// jo-workflow: creates and maintains an AI agent harness (.harness/) and
 // renders it for Claude Code, OpenCode and Codex.
 import fs from "node:fs";
 import path from "node:path";
@@ -28,7 +28,7 @@ class UsageError extends Error {}
 
 function unknownCommand(name) {
   const close = suggest(name);
-  return `unknown command '${name}'${close ? ` - did you mean '${close}'?` : ""} (run 'workflow-generator help')`;
+  return `unknown command '${name}'${close ? ` - did you mean '${close}'?` : ""} (run 'jo-workflow help')`;
 }
 
 // ---------------------------------------------------------------- args
@@ -165,7 +165,7 @@ async function cmdInit(project, opts) {
     }
   }
   console.log(`Initialized .harness/ for '${name}' (${systems.join(", ")}): ${count} element(s), stack: ${manifest.stack.join(", ") || "not detected"}`);
-  if (!manifest.stack.length) console.log("  No stack detected: fill .harness/harness.json 'commands' later, or run 'workflow-generator detect'.");
+  if (!manifest.stack.length) console.log("  No stack detected: fill .harness/harness.json 'commands' later, or run 'jo-workflow detect'.");
   return runSync(project, opts);
 }
 
@@ -253,7 +253,7 @@ function cmdAdopt(project, paths, opts) {
 function cmdLoop(project, [name], opts) {
   if (!name) throw new UsageError("usage: loop <name> [--system S] [--max N] [--dry-run]");
   const runner = path.join(project.harness, "runtime", "loop.mjs");
-  if (!exists(runner)) throw new UsageError("loop runner missing; run 'workflow-generator sync' first");
+  if (!exists(runner)) throw new UsageError("loop runner missing; run 'jo-workflow sync' first");
   const args = [runner, name];
   if (opts.system) args.push("--system", opts.system);
   if (opts.max) args.push("--max", opts.max);
@@ -265,7 +265,7 @@ function cmdLoop(project, [name], opts) {
 
 export async function main(argv) {
   const opts = parseArgs(argv);
-  if (opts.version) return console.log(`workflow-generator ${VERSION}`), 0;
+  if (opts.version) return console.log(`jo-workflow ${VERSION}`), 0;
   const [command, ...rest] = opts._;
   const project = new Project(path.resolve(opts.dir || "."));
 
@@ -279,7 +279,7 @@ export async function main(argv) {
   }
 
   const needsHarness = (fn) => {
-    if (!project.initialized) throw new UsageError(`no harness in ${project.root}; run 'workflow-generator init' first`);
+    if (!project.initialized) throw new UsageError(`no harness in ${project.root}; run 'jo-workflow init' first`);
     return fn();
   };
   switch (command) {

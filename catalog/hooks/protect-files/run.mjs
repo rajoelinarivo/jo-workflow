@@ -18,12 +18,12 @@ for (const f of files) {
     process.exit(2);
   }
   if (f === ".harness/lock.json") {
-    process.stderr.write("Blocked by protect-files: .harness/lock.json is maintained by `workflow-generator sync`.");
+    process.stderr.write("Blocked by protect-files: .harness/lock.json is maintained by `jo-workflow sync`.");
     process.exit(2);
   }
   if (f in generated) {
     process.stderr.write(
-      `Blocked by protect-files: ${f} is generated from .harness/. Edit the source in .harness/ (skills/, agents/, memory/, hooks/, loops/ or harness.json), then run \`workflow-generator sync\`.`
+      `Blocked by protect-files: ${f} is generated from .harness/. Edit the source in .harness/ (skills/, agents/, memory/, hooks/, loops/ or harness.json), then run \`jo-workflow sync\`.`
     );
     process.exit(2);
   }
