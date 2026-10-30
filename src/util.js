@@ -15,7 +15,8 @@ export function write(p, content) {
 export function readJson(p, fallback) {
   if (!exists(p)) return fallback;
   try {
-    return JSON.parse(read(p));
+    // Strip the UTF-8 BOM some Windows tools write (PowerShell 5.1, Notepad).
+    return JSON.parse(read(p).replace(/^﻿/, ""));
   } catch (e) {
     throw new Error(`invalid JSON in ${p}: ${e.message}`);
   }

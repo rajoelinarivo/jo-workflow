@@ -26,6 +26,9 @@ Première version sous le nom **jo-workflow** (package `@jow/cli`).
   fichiers générés.
 - Licence MIT, auteur RPA.
 
+### Corrections
+- Un fichier JSON enregistré avec un BOM UTF-8 (PowerShell 5.1, Bloc-notes) est lu correctement.
+
 ## [0.2.0]
 
 Version interne sous le nom `workflow-generator` : moteur Node.js, format neutre,
