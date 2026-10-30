@@ -1,0 +1,107 @@
+// Loads the neutral harness of a project (.harness/) and the built-in catalog.
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { exists, read, readJson, walk, listDirs, parseFrontmatter } from "./util.js";
+
+export const GENERATOR_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+export const CATALOG = path.join(GENERATOR_ROOT, "catalog");
+export const SYSTEMS = ["claude", "opencode", "codex"];
+export const KINDS = ["skill", "agent", "hook", "memory", "loop"];
+export const KIND_DIRS = { skill: "skills", agent: "agents", hook: "hooks", memory: "memory", loop: "loops" };
+
+export const HOOK_EVENTS = ["session-start", "prompt-submit", "before-edit", "after-edit", "before-shell", "after-shell", "stop"];
+
+export function defaultManifest(name) {
+  return {
+    version: 1,
+    name,
+    systems: [],
+    stack: [],
+    commands: { install: "", build: "", test: "", "test-unit": "", "test-integration": "", lint: "", typecheck: "", format: "", bench: "" },
+    formatters: {},
+    permissions: {
+      "allow-shell": ["git status", "git diff", "git log", "git show"],
+      "deny-read": [".env", ".env.*", "secrets/**"],
+    },
+    loop: {
+      claude: ["--permission-mode", "acceptEdits"],
+      codex: ["--sandbox", "workspace-write"],
+      opencode: [],
+    },
+  };
+}
+
+/** Reads every item of one kind from a base dir laid out like .harness/ or catalog/. */
+export function readItems(base, kind) {
+  const dir = path.join(base, KIND_DIRS[kind]);
+  if (kind === "skill") {
+    return listDirs(dir)
+      .filter((n) => exists(path.join(dir, n, "SKILL.md")))
+      .map((n) => {
+        const { data, body } = parseFrontmatter(read(path.join(dir, n, "SKILL.md")));
+        const files = walk(path.join(dir, n)).filter((f) => f !== "SKILL.md");
+        return { kind, name: n, data, body, dir: path.join(dir, n), files };
+      });
+  }
+  if (kind === "hook") {
+    return listDirs(dir)
+      .filter((n) => exists(path.join(dir, n, "hook.json")))
+      .map((n) => ({ kind, name: n, data: readJson(path.join(dir, n, "hook.json"), {}), dir: path.join(dir, n) }));
+  }
+  return walk(dir)
+    .filter((f) => f.endsWith(".md") && !f.includes("/"))
+    .map((f) => {
+      const { data, body } = parseFrontmatter(read(path.join(dir, f)));
+      return { kind, name: f.slice(0, -3), data, body };
+    });
+}
+
+export function loadCatalog() {
+  return Object.fromEntries(KINDS.map((k) => [k, readItems(CATALOG, k)]));
+}
+
+export class Project {
+  constructor(root) {
+    this.root = root;
+    this.harness = path.join(root, ".harness");
+  }
+  get initialized() {
+    return exists(path.join(this.harness, "harness.json"));
+  }
+  get manifestPath() {
+    return path.join(this.harness, "harness.json");
+  }
+  get lockPath() {
+    return path.join(this.harness, "lock.json");
+  }
+  manifest() {
+    const m = readJson(this.manifestPath, null);
+    if (!m) throw new Error(`no harness here: ${this.manifestPath} not found (run 'workflow-generator init')`);
+    const d = defaultManifest(m.name);
+    return { ...d, ...m, commands: { ...d.commands, ...m.commands }, permissions: { ...d.permissions, ...m.permissions }, loop: { ...d.loop, ...m.loop } };
+  }
+  lock() {
+    return readJson(this.lockPath, { version: 1, files: {}, managed: {} });
+  }
+  items() {
+    return Object.fromEntries(KINDS.map((k) => [k, readItems(this.harness, k)]));
+  }
+}
+
+/** Validates the neutral items and returns a list of problems. */
+export function validate(items) {
+  const problems = [];
+  for (const s of items.skill) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(s.name) || s.name.length > 64) problems.push(`skill '${s.name}': name must be lowercase letters, digits and single hyphens, max 64`);
+    if (s.data.name && s.data.name !== s.name) problems.push(`skill '${s.name}': frontmatter name '${s.data.name}' differs from folder name`);
+    if (!s.data.description) problems.push(`skill '${s.name}': description is required`);
+    else if (String(s.data.description).length > 1024) problems.push(`skill '${s.name}': description longer than 1024 characters`);
+  }
+  for (const a of items.agent) if (!a.data.description) problems.push(`agent '${a.name}': description is required`);
+  for (const h of items.hook) {
+    if (!HOOK_EVENTS.includes(h.data.event)) problems.push(`hook '${h.name}': unknown event '${h.data.event}' (expected ${HOOK_EVENTS.join(", ")})`);
+    if (!exists(path.join(h.dir, "run.mjs"))) problems.push(`hook '${h.name}': run.mjs is missing`);
+  }
+  for (const l of items.loop) if (!l.data.until) problems.push(`loop '${l.name}': 'until' is required`);
+  return problems;
+}
