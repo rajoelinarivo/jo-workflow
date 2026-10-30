@@ -18,15 +18,50 @@ const byOrder = (a, b) => (a.data.order ?? 100) - (b.data.order ?? 100) || a.nam
 
 // ---------------------------------------------------------------- instructions
 
+const AUTONOMY_TEXT = {
+  guided: "stop for approval at the phases marked [gate]",
+  step: "stop for approval after every phase",
+  auto: "stop only when blocked or a decision is needed",
+};
+
+/** Placeholders computed from the harness itself, on top of commands and project name. */
+export function extraPlaceholders(manifest, items) {
+  const workflows = items.workflow.map((w) => `| \`${w.name}\` | ${String(w.data.description || "").replace(/\|/g, "\\|")} |`);
+  return {
+    "harness.workflows": workflows.length ? ["| Workflow | Use it for |", "|---|---|", ...workflows].join("\n") : "(no workflow installed)",
+    "orchestrator.autonomy": manifest.orchestrator.autonomy,
+    "orchestrator.trigger": manifest.orchestrator.trigger,
+  };
+}
+
 function instructions(manifest, items, systems) {
   const ph = (t) => renderPlaceholders(t, manifest);
   const memory = [...items.memory].sort(byOrder);
   const out = [BANNER_MD];
+  if (items.skill.some((s) => s.name === "dev")) {
+    const { trigger, autonomy } = manifest.orchestrator;
+    out.push(
+      "## Entry point: the dev orchestrator",
+      "",
+      "- `/dev <request>` (Codex: `$dev <request>`) runs the whole workflow for a task: classify, plan, implement, verify, review, remember. `/dev` alone resumes the task in progress.",
+      trigger === "auto"
+        ? "- For any development request that does not explicitly name a skill, command or subagent, follow the `dev` skill even if the user did not type `/dev`. Answer plain questions directly."
+        : "- Use the `dev` skill only when the user asks for it.",
+      "- When the user invokes a specific skill, command or subagent directly, do only that: no orchestration.",
+      `- Autonomy: \`${autonomy}\` (${AUTONOMY_TEXT[autonomy] || autonomy}). Tasks are tracked in \`.harness/work/\`: resume them instead of starting over.`,
+      ""
+    );
+  }
   for (const m of memory.filter((m) => m.data.load !== "reference")) out.push(ph(m.body).trim(), "");
   const refs = memory.filter((m) => m.data.load === "reference");
   if (refs.length) {
     out.push("## Reference memory", "", "Read these files when the task touches their topic:", "");
     for (const m of refs) out.push(`- [${m.data.title || m.name}](.harness/memory/${m.name}.md)`);
+    out.push("");
+  }
+  if (items.workflow.length) {
+    out.push("## Workflows", "", "Used by the `dev` orchestrator; definitions in `.harness/workflows/`:", "");
+    for (const w of items.workflow) out.push(`- \`${w.name}\` - ${firstSentence(w.data.description)}`);
     out.push("");
   }
   if (items.skill.length) {
@@ -284,6 +319,7 @@ function renderCodex(ctx) {
 
 export function renderAll(manifest, items) {
   const systems = manifest.systems;
+  manifest = { ...manifest, placeholders: extraPlaceholders(manifest, items) };
   const out = { files: [], merges: [], warnings: [] };
   const ctx = { manifest, items, out, systems, instructions: instructions(manifest, items, systems) };
   ctx.agentsMd = systems.includes("codex") || systems.includes("opencode");
