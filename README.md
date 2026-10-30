@@ -16,6 +16,26 @@ Un fichier généré modifié à la main n'est jamais écrasé sans `--force`.
     dans `.harness/overrides/`.
   - `AGENTS.md` et `CLAUDE.md` sont refusés : leur contenu se change dans `.harness/memory/`.
 
+## Point d'entrée : l'orchestrateur `/dev`
+
+Le dev peut lancer `/dev <demande>` (`$dev <demande>` sous Codex). L'orchestrateur :
+- choisit un workflow (feature, bugfix, refactor, migration, research, testing,
+  generation, bootstrap ou quick) ;
+- suit la tâche dans `.harness/work/` ;
+- enchaîne les phases en s'appuyant sur les skills et les agents, avec validation du dev
+  aux étapes clés.
+
+`/dev` sans argument reprend la tâche en cours, même depuis un autre outil.
+
+- Par défaut (`orchestrator.trigger: auto`), toute demande de développement passe par
+  l'orchestrateur, même sans taper `/dev`.
+- Appeler directement un skill (`/bug-hunt`, `/refactor`…) ou un agent court-circuite
+  l'orchestrateur.
+- L'autonomie se règle dans `.harness/harness.json` (`orchestrator.autonomy`) :
+  - `guided` : validation après le plan et à la fin ;
+  - `step` : validation à chaque phase ;
+  - `auto` : arrêt seulement en cas de blocage.
+
 ## Prérequis et installation
 
 - Node.js 18 ou plus récent (aucune dépendance npm).
@@ -71,6 +91,8 @@ Les hooks sont écrits une seule fois en Node (`run.mjs`). Le pont
   - verify-on-stop : lance lint et typecheck avant que l'agent s'arrête.
 - **Memory** : project, conventions, workflow, architecture, decisions, lessons.
 - **Loops** : fix-until-green, lint-clean, typecheck-clean, migrate-step (checklist `MIGRATION.md`).
+- **Orchestrateur** : skill `dev`, avec les workflows feature, bugfix, refactor, migration,
+  research, testing, generation, bootstrap et quick.
 
 ## Structure de ce dépôt
 

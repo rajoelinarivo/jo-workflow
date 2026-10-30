@@ -15,8 +15,46 @@ enabled system reads (Claude Code, OpenCode, Codex). Edit `.harness/`, then sync
   agents/<name>.md      subagents
   hooks/<name>/hook.json + run.mjs
   loops/<name>.md       autonomous iterations run headless until a condition holds
+  workflows/<name>.md   phases the `dev` orchestrator runs for one kind of task
+  work/<date>-<slug>.md state of each task run by the orchestrator (versioned)
   runtime/              generator-owned helpers (bridge, loop runner) - do not edit
 ```
+
+## Orchestrator and workflows
+
+The `dev` skill is the entry point: `/dev <request>` (Codex: `$dev <request>`). It
+classifies the request, picks a workflow, creates `.harness/work/<date>-<slug>.md` and runs
+the workflow phases through the other skills and agents. Skills stay usable directly.
+
+`harness.json`:
+
+```json
+"orchestrator": { "trigger": "auto", "autonomy": "guided" }
+```
+
+- `trigger`: `auto` = the generated instructions route every development request through
+  `dev`; `manual` = only `/dev`.
+- `autonomy`: `guided` = stop at phases marked `[gate]`; `step` = stop after each phase;
+  `auto` = stop only when blocked.
+
+`workflows/<name>.md` is read by the agent directly (no placeholders):
+
+```markdown
+---
+name: bugfix
+description: Diagnose and fix a bug with a regression test.
+---
+## 1. Reproduce
+- Use: skill `bug-hunt`; agent `debugger`
+- Do: ...
+- Done when: ...
+
+## 3. Root cause [gate]
+- Check: test, lint          # project command names from harness.json
+```
+
+Extra placeholders: `{{harness.workflows}}` (table of installed workflows),
+`{{orchestrator.autonomy}}`, `{{orchestrator.trigger}}`.
 
 ## Upgrade and adopt
 
