@@ -1,9 +1,12 @@
 {
   "name": "@jow/cli",
   "version": "0.2.0",
-  "description": "Creates and maintains an AI agent harness for Claude Code, OpenCode and Codex",
+  "description": "jo-workflow: automatisation des manuels - generates and maintains the agent harness of a project for Claude Code, OpenCode and Codex",
+  "keywords": ["claude-code", "opencode", "codex", "agents", "skills", "hooks", "workflow"],
+  "author": "RPA",
+  "license": "MIT",
   "type": "module",
   "bin": { "jo-workflow": "src/cli.js" },
-  "engines": { "node": ">=18" },
-  "license": "UNLICENSED"
+  "files": ["src", "runtime", "catalog", "docs", "jo-workflow.sh", "jo-workflow.bat"],
+  "engines": { "node": ">=18" }
 }
