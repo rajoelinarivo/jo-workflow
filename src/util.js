@@ -112,6 +112,8 @@ export function renderPlaceholders(text, manifest) {
   // Accepts both `{{commands.x}}` and bare {{commands.x}}; a configured command is
   // rendered as inline code, a missing one as plain text.
   return text.replace(/(`?)\{\{\s*([a-z]+)\.([A-Za-z0-9_-]+)\s*\}\}\1/g, (all, tick, scope, key) => {
+    const extra = manifest.placeholders?.[`${scope}.${key}`];
+    if (extra !== undefined) return tick + extra + tick;
     if (scope === "project" && key === "name") return tick + manifest.name + tick;
     if (scope === "commands") {
       const cmd = manifest.commands?.[key];

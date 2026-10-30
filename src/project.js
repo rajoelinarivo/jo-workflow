@@ -6,8 +6,10 @@ import { exists, read, readJson, walk, listDirs, parseFrontmatter, hash, write, 
 export const GENERATOR_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const CATALOG = path.join(GENERATOR_ROOT, "catalog");
 export const SYSTEMS = ["claude", "opencode", "codex"];
-export const KINDS = ["skill", "agent", "hook", "memory", "loop"];
-export const KIND_DIRS = { skill: "skills", agent: "agents", hook: "hooks", memory: "memory", loop: "loops" };
+export const KINDS = ["skill", "agent", "hook", "memory", "loop", "workflow"];
+export const KIND_DIRS = { skill: "skills", agent: "agents", hook: "hooks", memory: "memory", loop: "loops", workflow: "workflows" };
+export const AUTONOMY = ["guided", "step", "auto"];
+export const TRIGGERS = ["auto", "manual"];
 
 export const HOOK_EVENTS = ["session-start", "prompt-submit", "before-edit", "after-edit", "before-shell", "after-shell", "stop"];
 
@@ -28,6 +30,9 @@ export function defaultManifest(name) {
       codex: ["--sandbox", "workspace-write"],
       opencode: [],
     },
+    // trigger: auto = every development request goes through the `dev` skill; manual = only /dev.
+    // autonomy: guided = stop at [gate] phases; step = stop after each phase; auto = stop only when blocked.
+    orchestrator: { trigger: "auto", autonomy: "guided" },
   };
 }
 
@@ -95,7 +100,7 @@ export class Project {
     const m = readJson(this.manifestPath, null);
     if (!m) throw new Error(`no harness here: ${this.manifestPath} not found (run 'workflow-generator init')`);
     const d = defaultManifest(m.name);
-    return { ...d, ...m, commands: { ...d.commands, ...m.commands }, permissions: { ...d.permissions, ...m.permissions }, loop: { ...d.loop, ...m.loop } };
+    return { ...d, ...m, commands: { ...d.commands, ...m.commands }, permissions: { ...d.permissions, ...m.permissions }, loop: { ...d.loop, ...m.loop }, orchestrator: { ...d.orchestrator, ...m.orchestrator } };
   }
   lock() {
     const lock = readJson(this.lockPath, {});
@@ -131,5 +136,9 @@ export function validate(items) {
     if (!exists(path.join(h.dir, "run.mjs"))) problems.push(`hook '${h.name}': run.mjs is missing`);
   }
   for (const l of items.loop) if (!l.data.until) problems.push(`loop '${l.name}': 'until' is required`);
+  for (const w of items.workflow) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(w.name)) problems.push(`workflow '${w.name}': name must be lowercase letters, digits and single hyphens`);
+    if (!w.data.description) problems.push(`workflow '${w.name}': description is required`);
+  }
   return problems;
 }
