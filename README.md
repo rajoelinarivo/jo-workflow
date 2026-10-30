@@ -1,5 +1,15 @@
 # jo-workflow
 
+```
+     _  ___      __        __
+    | |/ _ \     \ \      / /
+ _  | | | | |_____\ \ /\ / /
+| |_| | |_| |_____|\ V  V /
+ \___/ \___/        \_/\_/
+```
+
+**jo-workflow - automatisation des manuels.** Package `@jow/cli`, commande `jo-workflow`.
+
 Génère et maintient le harnais d'agents IA d'un projet (skills, subagents, hooks,
 memory, loops) pour **Claude Code**, **OpenCode** et **Codex**, quel que soit le stack.
 
@@ -98,6 +108,19 @@ Les hooks sont écrits une seule fois en Node (`run.mjs`). Le pont
 - **Orchestrateur** : skill `dev`, avec les workflows feature, bugfix, refactor, migration,
   research, testing, generation, bootstrap et quick.
 
+## Migrer un projet créé avec workflow-generator (0.2 et avant)
+
+Le dossier source s'appelait `.harness/`. jo-workflow le détecte et indique la marche à suivre :
+
+```sh
+git mv .harness .jow
+jo-workflow upgrade   # met à jour les éléments du catalogue non modifiés (nouveaux chemins)
+jo-workflow sync      # régénère les fichiers ; les anciens hooks de .claude/settings.json sont remplacés
+```
+
+Les éléments que vous aviez modifiés dans `.harness/` sont gardés : remplacez-y vous-même
+`.harness/` par `.jow/`.
+
 ## Structure de ce dépôt
 
 ```
@@ -106,3 +129,7 @@ runtime/    copié dans .jow/runtime/ de chaque projet (pont des hooks, loops)
 catalog/    éléments neutres installables
 docs/       FORMAT.md : contrat du format neutre
 ```
+
+## Licence
+
+MIT, (c) 2026 RPA. Voir [LICENSE](LICENSE).
