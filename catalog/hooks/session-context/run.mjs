@@ -25,7 +25,7 @@ const lock = path.join(".harness", "lock.json");
 if (fs.existsSync(lock)) {
   const synced = fs.statSync(lock).mtimeMs;
   const stale = [];
-  for (const dir of ["memory", "skills", "agents", "hooks", "loops"]) {
+  for (const dir of ["memory", "skills", "agents", "hooks", "loops", "workflows"]) {
     const walk = (d) => {
       if (!fs.existsSync(d)) return;
       for (const e of fs.readdirSync(d, { withFileTypes: true })) {
@@ -39,6 +39,21 @@ if (fs.existsSync(lock)) {
   if (stale.length) {
     lines.push(`Harness: ${stale.length} file(s) in .harness/ changed since the last sync (${stale.slice(0, 5).join(", ")}). Generated instructions may be outdated: run \`workflow-generator sync\` or read those files directly.`);
   }
+}
+
+// Tasks left open by the dev orchestrator (.harness/work/*.md).
+const workDir = path.join(".harness", "work");
+if (fs.existsSync(workDir)) {
+  const open = [];
+  for (const f of fs.readdirSync(workDir).filter((f) => f.endsWith(".md")).sort()) {
+    const text = fs.readFileSync(path.join(workDir, f), "utf8");
+    const status = text.match(/^status:\s*(\S+)/m)?.[1] || "in-progress";
+    if (status === "done") continue;
+    const workflow = text.match(/^workflow:\s*(\S+)/m)?.[1] || "?";
+    const next = text.match(/^\s*- \[ \] (.+)$/m)?.[1] || "close the task";
+    open.push(`- .harness/work/${f} (${workflow}, ${status}) - next: ${next}`);
+  }
+  if (open.length) lines.push("Open tasks (resume with /dev):", ...open);
 }
 
 if (lines.length) console.log(lines.join("\n"));
