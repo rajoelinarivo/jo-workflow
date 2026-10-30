@@ -1,7 +1,7 @@
 // Loads the neutral harness of a project (.harness/) and the built-in catalog.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { exists, read, readJson, walk, listDirs, parseFrontmatter } from "./util.js";
+import { exists, read, readJson, walk, listDirs, parseFrontmatter, hash, write, json } from "./util.js";
 
 export const GENERATOR_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const CATALOG = path.join(GENERATOR_ROOT, "catalog");
@@ -56,6 +56,23 @@ export function readItems(base, kind) {
     });
 }
 
+const DIR_KINDS = ["skill", "hook"];
+
+/** Path of an item under a base laid out like .harness/ or catalog/. */
+export function itemPath(base, kind, name) {
+  const dir = path.join(base, KIND_DIRS[kind]);
+  return DIR_KINDS.includes(kind) ? path.join(dir, name) : path.join(dir, `${name}.md`);
+}
+
+/** Content hash of an item (all its files), insensitive to CRLF/LF checkouts. */
+export function itemHash(base, kind, name) {
+  const p = itemPath(base, kind, name);
+  if (!exists(p)) return null;
+  const text = (f) => read(f).replace(/\r\n/g, "\n");
+  if (!DIR_KINDS.includes(kind)) return hash(text(p));
+  return hash(walk(p).map((f) => `${f}\0${text(path.join(p, f))}`).join("\0\0"));
+}
+
 export function loadCatalog() {
   return Object.fromEntries(KINDS.map((k) => [k, readItems(CATALOG, k)]));
 }
@@ -81,7 +98,18 @@ export class Project {
     return { ...d, ...m, commands: { ...d.commands, ...m.commands }, permissions: { ...d.permissions, ...m.permissions }, loop: { ...d.loop, ...m.loop } };
   }
   lock() {
-    return readJson(this.lockPath, { version: 1, files: {}, managed: {} });
+    const lock = readJson(this.lockPath, {});
+    return { version: 1, files: {}, managed: {}, catalog: {}, ...lock };
+  }
+  /** Records (hash) or forgets (null) the catalog version an item was installed from. */
+  recordCatalog(kind, name, itemHashValue) {
+    const lock = this.lock();
+    if (itemHashValue) lock.catalog[`${kind}/${name}`] = itemHashValue;
+    else delete lock.catalog[`${kind}/${name}`];
+    write(this.lockPath, json(lock));
+  }
+  get overridesDir() {
+    return path.join(this.harness, "overrides");
   }
   items() {
     return Object.fromEntries(KINDS.map((k) => [k, readItems(this.harness, k)]));
