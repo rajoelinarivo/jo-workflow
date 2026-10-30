@@ -1,7 +1,7 @@
 // Writes the rendered files, protecting anything the dev changed by hand.
 import fs from "node:fs";
 import path from "node:path";
-import { exists, read, write, hash, json, readJson } from "./util.js";
+import { exists, read, write, hash, json, readJson, walk } from "./util.js";
 import { renderAll } from "./render.js";
 import { validate } from "./project.js";
 
@@ -24,33 +24,42 @@ function removeEmptyDirs(root, rel) {
  * Renders and writes the harness. Returns a report:
  * { created, updated, deleted, conflicts: [{path, reason}], orphans, merged, warnings, problems }
  */
-export function sync(project, { force = false, dryRun = false } = {}) {
+export function sync(project, { force = false, dryRun = false, forcePaths = new Set() } = {}) {
   const manifest = project.manifest();
   const items = project.items();
   const report = { created: [], updated: [], deleted: [], conflicts: [], orphans: [], merged: [], warnings: [], problems: validate(items) };
   if (report.problems.length) return report;
 
   const lock = project.lock();
-  const next = { version: 1, files: {}, managed: {} };
+  const next = { version: 1, files: {}, managed: {}, catalog: lock.catalog };
   const rendered = renderAll(manifest, items);
   report.warnings.push(...rendered.warnings);
+
+  // .harness/overrides/<path> replaces the rendered content of <path> verbatim.
+  const overrides = new Set(walk(project.overridesDir));
+  for (const f of rendered.files) {
+    if (!overrides.delete(f.path)) continue;
+    f.content = fs.readFileSync(path.join(project.overridesDir, f.path));
+  }
+  for (const rel of overrides) report.warnings.push(`.harness/overrides/${rel}: not a generated file any more, override unused`);
 
   for (const { path: rel, content } of rendered.files) {
     const abs = path.join(project.root, rel);
     const want = hash(content);
     const prev = lock.files[rel];
+    const forced = force || forcePaths.has(rel);
     if (exists(abs)) {
       const cur = fileHash(abs);
       if (cur === want) {
         next.files[rel] = want;
         continue;
       }
-      if (!force && prev && cur !== prev) {
+      if (!forced && prev && cur !== prev) {
         report.conflicts.push({ path: rel, reason: "modified by hand" });
         next.files[rel] = prev;
         continue;
       }
-      if (!force && !prev) {
+      if (!forced && !prev) {
         report.conflicts.push({ path: rel, reason: "already exists and was not generated" });
         continue;
       }
