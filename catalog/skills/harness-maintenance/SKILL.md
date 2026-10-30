@@ -28,6 +28,8 @@ argument-hint: "[harness operation, e.g. add skill bug-hunt]"
 | Detect stack and propose commands | `workflow-generator detect` |
 | Run an autonomous loop | `workflow-generator loop <name> [--system claude\|opencode\|codex] [--max N]` |
 | Enable or disable a target system | `workflow-generator system add <claude\|opencode\|codex>` / `system remove <...>` |
+| Update installed items from the generator catalog (keeps items you changed) | `workflow-generator upgrade [--dry-run]` |
+| Keep a hand edit of a generated file | `workflow-generator adopt <file>... [--override]` |
 
 ## Procedures
 **Change any instruction, skill or agent**
@@ -53,7 +55,11 @@ argument-hint: "[harness operation, e.g. add skill bug-hunt]"
 - `.harness/hooks/<name>/hook.json` (description, event, blocking, timeout) and `run.mjs` (Node, reads one JSON object on stdin). Events: session-start, prompt-submit, before-edit, after-edit, before-shell, after-shell, stop. Exit 2 blocks only when `blocking: true`.
 
 ## Status drift
-If `status` reports a modified generated file, someone edited output directly. Port the intended change into `.harness/`, then `sync` to overwrite the generated copy.
+If `status` reports a modified generated file, someone edited output directly. Run `workflow-generator adopt <file>`:
+- a skill or agent file goes back to its `.harness/` source (placeholders restored) and reaches every system; review with `git diff .harness`;
+- `.codex/config.toml` becomes an override in `.harness/overrides/`;
+- `AGENTS.md`, `CLAUDE.md` and other generated files are refused: port the change into `.harness/memory/` or the relevant source. `--override` freezes the file as-is, which also blocks future updates to it - use it only when the user asks.
+Never adopt on your own initiative: ask the user whether the hand edit should be kept.
 
 ## Definition of done
 - Change made in `.harness/` only; `sync` run; `status` clean.
