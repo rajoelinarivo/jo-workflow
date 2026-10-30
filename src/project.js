@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { exists, read, readJson, walk, listDirs, parseFrontmatter, hash, write, json } from "./util.js";
 
 export const GENERATOR_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Short description shown in the help header and in generated file headers.
+export const DESCRIPTION = "automatisation des manuels";
 export const CATALOG = path.join(GENERATOR_ROOT, "catalog");
 export const SYSTEMS = ["claude", "opencode", "codex"];
 export const KINDS = ["skill", "agent", "hook", "memory", "loop", "workflow"];

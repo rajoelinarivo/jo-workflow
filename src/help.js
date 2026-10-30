@@ -2,7 +2,7 @@
 // per-command help (`help <command>` or `<command> --help`).
 import fs from "node:fs";
 import path from "node:path";
-import { KINDS, SYSTEMS, LEGACY_HINT } from "./project.js";
+import { KINDS, SYSTEMS, LEGACY_HINT, DESCRIPTION } from "./project.js";
 import { sync } from "./sync.js";
 
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR;
@@ -181,9 +181,19 @@ function projectState(project) {
   }
 }
 
+const LOGO = String.raw`
+     _  ___      __        __
+    | |/ _ \     \ \      / /
+ _  | | | | |_____\ \ /\ / /
+| |_| | |_| |_____|\ V  V /
+ \___/ \___/        \_/\_/`.slice(1);
+
 export function overview(version, project) {
   const out = [
-    `${bold("jo-workflow")} ${version} - agent harness for Claude Code, OpenCode and Codex`,
+    cyan(LOGO),
+    "",
+    `${bold("jo-workflow")} ${version} - ${DESCRIPTION}`,
+    dim("Claude Code, OpenCode, Codex"),
     "",
     projectState(project),
     "",
