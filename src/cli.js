@@ -15,11 +15,12 @@ const VERSION = readJson(path.join(GENERATOR_ROOT, "package.json"), {}).version 
 
 // Installed by `init --minimal`; `init` installs the whole catalog.
 const MINIMAL = {
-  skill: ["implement-feature", "bug-hunt", "code-review", "unit-tests", "remember", "harness-maintenance"],
+  skill: ["dev", "implement-feature", "bug-hunt", "code-review", "unit-tests", "remember", "harness-maintenance"],
   agent: ["planner", "reviewer"],
   hook: ["session-context", "guard-shell", "protect-files"],
   memory: ["project", "conventions", "workflow", "decisions", "lessons"],
   loop: ["fix-until-green"],
+  workflow: ["feature", "bugfix", "quick"],
 };
 
 const HELP = `workflow-generator ${VERSION} - agent harness generator for Claude Code, OpenCode and Codex
@@ -42,6 +43,7 @@ Commands:
   upgrade                    Update installed elements from the generator's catalog,
                              except those you changed (--force replaces them too)
       --dry-run              Show what would be upgraded
+      --add-new              Also install catalog elements not installed yet
   adopt <file>...            Keep hand edits of generated files: skill and agent files go
                              back to their .harness/ source (and reach every system),
                              other files become overrides in .harness/overrides/
@@ -81,6 +83,7 @@ function parseArgs(argv) {
     else if (a === "--minimal") opts.minimal = true;
     else if (a === "--catalog") opts.catalog = true;
     else if (a === "--override") opts.override = true;
+    else if (a === "--add-new") opts.addNew = true;
     else if (a.startsWith("-")) throw new UsageError(`unknown option '${a}' (see --help)`);
     else opts._.push(a);
   }
@@ -144,6 +147,8 @@ function scaffold(kind, name) {
       return `---\ntitle: ${name}\norder: 70\nload: reference\n---\n## ${name}\n\nTODO\n`;
     case "loop":
       return `---\nname: ${name}\ndescription: "TODO: what this loop achieves."\nuntil: test\nmax-iterations: 10\n---\nTODO: the task to perform at each iteration.\n\nMake one focused change per iteration. Never disable or skip checks to make them pass.\n`;
+    case "workflow":
+      return `---\nname: ${name}\ndescription: "TODO: the kind of task this workflow handles."\n---\n# ${name}\n\nPhases run in order by the \`dev\` orchestrator. [gate] = stop for approval in guided autonomy.\nCheck names refer to the project commands (project memory / .harness/harness.json).\n\n## 1. Understand\n- Use: TODO skill or agent\n- Do: TODO\n- Done when: TODO\n\n## 2. Plan [gate]\n- Use: agent \`planner\`\n- Done when: steps written in the task file.\n\n## 3. Do\n- Use: TODO\n- Check: test, lint\n\n## 4. Review and close [gate]\n- Use: skill \`code-review\`, skill \`remember\`\n- Done when: findings fixed, task summary written.\n`;
     case "hook":
       return {
         "hook.json": json({ description: "TODO", event: "after-edit", blocking: false, timeout: 60 }),
@@ -255,12 +260,13 @@ function cmdDetect(project, opts) {
 }
 
 function cmdUpgrade(project, opts) {
-  const r = upgrade(project, { force: opts.force, dryRun: opts.dryRun });
+  const r = upgrade(project, { force: opts.force, dryRun: opts.dryRun, addNew: opts.addNew });
   const verb = opts.dryRun ? "would upgrade" : "upgrade";
   for (const k of r.updated) console.log(`  ${verb}  ${k}`);
+  for (const k of r.added) console.log(`  ${opts.dryRun ? "would add" : "add"}      ${k}`);
   for (const k of r.modified) console.log(`  keep     ${k} (changed in .harness/; --force replaces it with the catalog version)`);
-  if (r.available.length) console.log(`  new in catalog (install with 'add <kind> <name>'): ${r.available.join(", ")}`);
-  console.log(`${r.updated.length} upgraded, ${r.current.length} already current, ${r.modified.length} kept, ${r.custom.length} custom.`);
+  if (r.available.length) console.log(`  new in catalog (install with 'add <kind> <name>' or 'upgrade --add-new'): ${r.available.join(", ")}`);
+  console.log(`${r.updated.length} upgraded, ${r.added.length} added, ${r.current.length} already current, ${r.modified.length} kept, ${r.custom.length} custom.`);
   if (opts.dryRun) return 0;
   return runSync(project, opts);
 }
