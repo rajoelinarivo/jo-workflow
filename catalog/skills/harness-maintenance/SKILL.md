@@ -20,8 +20,8 @@ argument-hint: "[harness operation, e.g. add skill bug-hunt]"
 ## Commands
 | Goal | Command |
 |---|---|
-| Add a catalog item | `workflow-generator add <skill\|agent\|hook\|memory\|loop> <name>` |
-| Remove an item | `workflow-generator remove <skill\|agent\|hook\|memory\|loop> <name>` |
+| Add a catalog item | `workflow-generator add <skill\|agent\|hook\|memory\|loop\|workflow> <name>` |
+| Remove an item | `workflow-generator remove <skill\|agent\|hook\|memory\|loop\|workflow> <name>` |
 | List installed and available items | `workflow-generator list` |
 | Regenerate system files from `.harness/` | `workflow-generator sync` |
 | Show drift, missing or outdated generated files | `workflow-generator status` |
@@ -50,6 +50,12 @@ argument-hint: "[harness operation, e.g. add skill bug-hunt]"
 **Write a custom loop**
 - `.harness/loops/<name>.md` with `name`, `description`, `until` (a commands key or a shell command; `checklist:<file>` means done when no `- [ ]` remain), `max-iterations`.
 - The body is the prompt sent at each iteration: one focused change, never disable checks, stop and explain when blocked.
+
+**Workflows and the dev orchestrator**
+- `.harness/workflows/<name>.md`: `name`, `description` (what kind of task it handles), then one `## <n>. <Phase>` heading per phase with `- Use:` (skills, agents), `- Do:`, `- Check:` (project command names) and `- Done when:`. Append `[gate]` to a phase heading to stop there for approval in guided autonomy.
+- The `dev` skill reads workflows directly from `.harness/workflows/`; run `workflow-generator sync` after adding one so the orchestrator's list is refreshed.
+- `.harness/harness.json` `orchestrator`: `trigger` is `auto` (every development request goes through `dev`) or `manual` (only `/dev`); `autonomy` is `guided`, `step` or `auto`.
+- Task state lives in `.harness/work/*.md` (versioned).
 
 **Hooks**
 - `.harness/hooks/<name>/hook.json` (description, event, blocking, timeout) and `run.mjs` (Node, reads one JSON object on stdin). Events: session-start, prompt-submit, before-edit, after-edit, before-shell, after-shell, stop. Exit 2 blocks only when `blocking: true`.

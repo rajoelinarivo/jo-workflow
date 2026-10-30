@@ -9,6 +9,7 @@ load: always
 For any change beyond a trivial fix: read the relevant memory and code, state the goal and acceptance criteria, write a short step plan, and confirm it with the user when the change is non-trivial or the scope is unclear. Ask before expanding scope.
 
 ## Which skill for which situation
+- A whole task from request to done, or resuming one: `dev` (orchestrator, picks a workflow from `.harness/workflows/`)
 - New project or module from scratch: `project-bootstrap`
 - Build a feature or user story: `implement-feature`
 - Generate code from a spec, schema or templates: `code-generation`
