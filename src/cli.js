@@ -10,6 +10,7 @@ import { Project, defaultManifest, loadCatalog, readItems, itemPath, CATALOG, GE
 import { detectStacks, applyStacks } from "./stacks.js";
 import { sync } from "./sync.js";
 import { upgrade, adopt, installFromCatalog } from "./maintain.js";
+import { overview, commandHelp, suggest } from "./help.js";
 
 const VERSION = readJson(path.join(GENERATOR_ROOT, "package.json"), {}).version || "dev";
 
@@ -23,44 +24,12 @@ const MINIMAL = {
   workflow: ["feature", "bugfix", "quick"],
 };
 
-const HELP = `workflow-generator ${VERSION} - agent harness generator for Claude Code, OpenCode and Codex
-
-Usage: workflow-generator <command> [options]
-
-Commands:
-  init                       Create .harness/ from the catalog and render it
-      --systems LIST         claude,opencode,codex or all (asked if omitted)
-      --name NAME            Project name (default: folder name)
-      --minimal              Install a core subset instead of the full catalog
-  add <kind> <name>          Add an element (from the catalog, or a blank template)
-  remove <kind> <name>       Remove an element and its generated files
-  list [--catalog]           List installed elements, or the whole catalog
-  system add|remove <name>   Enable or disable a system (claude, opencode, codex)
-  sync                       Render .harness/ into each enabled system
-      --dry-run              Show what would change
-      --force                Overwrite files modified by hand
-  status                     Same as sync --dry-run
-  upgrade                    Update installed elements from the generator's catalog,
-                             except those you changed (--force replaces them too)
-      --dry-run              Show what would be upgraded
-      --add-new              Also install catalog elements not installed yet
-  adopt <file>...            Keep hand edits of generated files: skill and agent files go
-                             back to their .harness/ source (and reach every system),
-                             other files become overrides in .harness/overrides/
-      --override             Keep the edit for this file only, as an override
-  detect                     Detect the stack and fill empty commands in harness.json
-  loop <name> [--system S] [--max N] [--dry-run]
-                             Run an autonomous loop headless until its check passes
-
-Kinds: ${KINDS.join(", ")}
-
-Global options:
-  -d, --dir DIR              Project directory (default: current directory)
-  -y, --yes                  Never prompt; use defaults
-  -h, --help                 Show this help
-  -v, --version              Show the version`;
-
 class UsageError extends Error {}
+
+function unknownCommand(name) {
+  const close = suggest(name);
+  return `unknown command '${name}'${close ? ` - did you mean '${close}'?` : ""} (run 'workflow-generator help')`;
+}
 
 // ---------------------------------------------------------------- args
 
@@ -298,9 +267,17 @@ export async function main(argv) {
   const opts = parseArgs(argv);
   if (opts.version) return console.log(`workflow-generator ${VERSION}`), 0;
   const [command, ...rest] = opts._;
-  if (opts.help || !command || command === "help") return console.log(HELP), 0;
-
   const project = new Project(path.resolve(opts.dir || "."));
+
+  // `help <cmd>`, `<cmd> --help`, bare `help`/`--help`, or no command at all.
+  const helpTopic = command === "help" ? rest[0] : opts.help ? command : undefined;
+  if (command === "help" || opts.help || !command) {
+    if (!helpTopic) return console.log(overview(VERSION, project)), 0;
+    const text = commandHelp(helpTopic);
+    if (!text) throw new UsageError(unknownCommand(helpTopic));
+    return console.log(text), 0;
+  }
+
   const needsHarness = (fn) => {
     if (!project.initialized) throw new UsageError(`no harness in ${project.root}; run 'workflow-generator init' first`);
     return fn();
@@ -329,7 +306,7 @@ export async function main(argv) {
     case "loop":
       return needsHarness(() => cmdLoop(project, rest, opts));
     default:
-      throw new UsageError(`unknown command '${command}' (see --help)`);
+      throw new UsageError(unknownCommand(command));
   }
 }
 
