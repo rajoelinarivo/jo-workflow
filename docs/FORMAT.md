@@ -7,7 +7,9 @@ enabled system reads (Claude Code, OpenCode, Codex). Edit `.harness/`, then sync
 ```
 .harness/
   harness.json          manifest: systems, stack, commands, permissions
-  lock.json             generated files and their hashes (commit it, do not edit)
+  lock.json             generated files and their hashes, catalog versions of installed
+                        items (commit it, do not edit)
+  overrides/<path>      verbatim replacement for the generated file <path> (see adopt)
   memory/*.md           project knowledge loaded into every session
   skills/<name>/SKILL.md (+ any supporting files)
   agents/<name>.md      subagents
@@ -15,6 +17,17 @@ enabled system reads (Claude Code, OpenCode, Codex). Edit `.harness/`, then sync
   loops/<name>.md       autonomous iterations run headless until a condition holds
   runtime/              generator-owned helpers (bridge, loop runner) - do not edit
 ```
+
+## Upgrade and adopt
+
+- `upgrade` replaces an installed item with the current catalog version only when the
+  item still equals the catalog version it was installed from (`lock.json` `catalog`).
+  Items changed in `.harness/` are kept unless `--force`.
+- `adopt <file>` keeps a hand edit of a generated file. Skill files and agent files
+  (Claude, OpenCode or Codex flavor) are written back into their `.harness/` source:
+  body, description, argument hint and tools, with placeholders restored where the
+  source used them. `.codex/config.toml`, or any file with `--override`, is copied to
+  `overrides/<path>` and from then on generated verbatim.
 
 ## Placeholders
 

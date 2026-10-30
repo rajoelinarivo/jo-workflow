@@ -7,6 +7,15 @@ La source de vérité vit dans le projet, dans `.harness/` (format neutre, voir
 [docs/FORMAT.md](docs/FORMAT.md)). `sync` la traduit dans les fichiers de chaque système.
 Un fichier généré modifié à la main n'est jamais écrasé sans `--force`.
 
+- `upgrade` : quand le catalogue du générateur évolue, met à jour les éléments installés,
+  sauf ceux que le dev a modifiés dans `.harness/` (`--force` pour les remplacer aussi).
+- `adopt <fichier>` : garde une modification faite directement dans un fichier généré.
+  - Un skill ou un agent repart dans sa source `.harness/`, avec les placeholders restaurés,
+    et la modification atteint donc tous les systèmes.
+  - `.codex/config.toml`, ou tout fichier passé avec `--override`, devient une surcharge
+    dans `.harness/overrides/`.
+  - `AGENTS.md` et `CLAUDE.md` sont refusés : leur contenu se change dans `.harness/memory/`.
+
 ## Prérequis et installation
 
 - Node.js 18 ou plus récent (aucune dépendance npm).
@@ -24,6 +33,8 @@ workflow-generator remove skill benchmark
 workflow-generator system add codex                 # active un système de plus
 workflow-generator sync                             # après avoir modifié .harness/
 workflow-generator status                           # ce que sync changerait
+workflow-generator upgrade                          # met à jour depuis le catalogue ce que le dev n'a pas modifié
+workflow-generator adopt .claude/skills/x/SKILL.md  # rapatrie une modif faite à la main vers .harness/
 workflow-generator detect                           # détecte le stack, remplit les commandes vides
 workflow-generator loop fix-until-green             # itère en mode headless jusqu'à ce que les tests passent
 workflow-generator list --catalog
