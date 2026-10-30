@@ -57,12 +57,14 @@ function instructions(manifest, items, systems) {
 
 // ---------------------------------------------------------------- skills
 
-function skillFiles(skill, manifest, dir, data) {
-  const files = [{ path: `${dir}/${skill.name}/SKILL.md`, content: frontmatter(data, renderPlaceholders(skill.body, manifest)) }];
+// `source` tells `adopt` which neutral file a generated file comes from.
+function skillFiles(skill, manifest, dir, data, flavor) {
+  const source = (file) => ({ kind: "skill", name: skill.name, file, flavor });
+  const files = [{ path: `${dir}/${skill.name}/SKILL.md`, content: frontmatter(data, renderPlaceholders(skill.body, manifest)), source: source("SKILL.md") }];
   for (const f of skill.files) {
     const buf = fs.readFileSync(path.join(skill.dir, f));
     const content = f.endsWith(".md") ? renderPlaceholders(buf.toString("utf8"), manifest) : buf;
-    files.push({ path: `${dir}/${skill.name}/${f}`, content });
+    files.push({ path: `${dir}/${skill.name}/${f}`, content, source: source(f) });
   }
   return files;
 }
@@ -155,7 +157,7 @@ export const HarnessHooks = async ({ directory }) => {
 
 // ---------------------------------------------------------------- systems
 
-const CLAUDE_TOOLS = { read: ["Read"], search: ["Grep", "Glob"], edit: ["Edit"], write: ["Write"], shell: ["Bash"], web: ["WebFetch", "WebSearch"] };
+export const CLAUDE_TOOLS = { read: ["Read"], search: ["Grep", "Glob"], edit: ["Edit"], write: ["Write"], shell: ["Bash"], web: ["WebFetch", "WebSearch"] };
 const tools = (a) => (Array.isArray(a.data.tools) ? a.data.tools : []);
 
 function renderClaude(ctx) {
@@ -166,12 +168,13 @@ function renderClaude(ctx) {
   for (const s of items.skill) {
     const data = { name: s.name, description: s.data.description, "argument-hint": s.data["argument-hint"] || undefined };
     if (s.data["user-invocable"] === false) data["user-invocable"] = false;
-    out.files.push(...skillFiles(s, manifest, ".claude/skills", data));
+    out.files.push(...skillFiles(s, manifest, ".claude/skills", data, "claude"));
   }
   for (const a of items.agent) {
     const t = [...new Set(tools(a).flatMap((x) => CLAUDE_TOOLS[x] || []))];
     const data = { name: a.name, description: a.data.description, tools: t.length ? t.join(", ") : undefined, model: a.data.model };
-    out.files.push({ path: `.claude/agents/${a.name}.md`, content: frontmatter(data, renderPlaceholders(a.body, manifest)) });
+    const source = { kind: "agent", name: a.name, flavor: "claude" };
+    out.files.push({ path: `.claude/agents/${a.name}.md`, content: frontmatter(data, renderPlaceholders(a.body, manifest)), source });
   }
 
   const allow = manifest.permissions["allow-shell"].flatMap((c) => [`Bash(${c})`, `Bash(${c} *)`]);
@@ -211,7 +214,8 @@ function renderOpencode(ctx) {
     if (!t.includes("shell")) permission.bash = "deny";
     if (!t.includes("web")) permission.webfetch = "deny";
     const data = { description: a.data.description, mode: "subagent", permission: Object.keys(permission).length ? permission : undefined };
-    out.files.push({ path: `.opencode/agents/${a.name}.md`, content: frontmatter(data, renderPlaceholders(a.body, manifest)) });
+    const source = { kind: "agent", name: a.name, flavor: "opencode" };
+    out.files.push({ path: `.opencode/agents/${a.name}.md`, content: frontmatter(data, renderPlaceholders(a.body, manifest)), source });
   }
   const hooks = items.hook.filter((h) => {
     if (h.data.event !== "prompt-submit") return true;
@@ -258,7 +262,8 @@ function renderCodex(ctx) {
     ];
     if (!t.includes("edit") && !t.includes("write")) lines.push('sandbox_mode = "read-only"');
     lines.push(`developer_instructions = ${tomlMultiline(renderPlaceholders(a.body, manifest).trim() + "\n")}`);
-    out.files.push({ path: `.codex/agents/${a.name}.toml`, content: lines.join("\n") + "\n" });
+    const source = { kind: "agent", name: a.name, flavor: "codex" };
+    out.files.push({ path: `.codex/agents/${a.name}.toml`, content: lines.join("\n") + "\n", source });
   }
   out.files.push({
     path: ".codex/config.toml",
@@ -291,7 +296,7 @@ export function renderAll(manifest, items) {
   if (systems.includes("opencode")) renderOpencode(ctx);
   if (systems.includes("codex")) renderCodex(ctx);
   if (ctx.needAgentsSkills) {
-    for (const s of items.skill) out.files.push(...skillFiles(s, manifest, ".agents/skills", { name: s.name, description: s.data.description }));
+    for (const s of items.skill) out.files.push(...skillFiles(s, manifest, ".agents/skills", { name: s.name, description: s.data.description }, "agents"));
   }
   return out;
 }
