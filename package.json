@@ -1,6 +1,6 @@
 {
   "name": "@jow/cli",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "jo-workflow: automatisation des manuels - generates and maintains the agent harness of a project for Claude Code, OpenCode and Codex",
   "keywords": ["claude-code", "opencode", "codex", "agents", "skills", "hooks", "workflow"],
   "author": "RPA",
