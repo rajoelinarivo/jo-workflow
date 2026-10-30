@@ -1,0 +1,9 @@
+{
+  "name": "workflow-generator",
+  "version": "0.2.0",
+  "description": "Creates and maintains an AI agent harness for Claude Code, OpenCode and Codex",
+  "type": "module",
+  "bin": { "workflow-generator": "src/cli.js" },
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED"
+}
