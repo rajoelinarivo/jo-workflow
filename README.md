@@ -45,6 +45,10 @@ Le dev peut lancer `/dev <demande>` (`$dev <demande>` sous Codex). L'orchestrate
 
 ## Utilisation
 
+`workflow-generator` sans argument affiche l'aide. Dans un projet équipé, elle montre aussi
+son état : systèmes, éléments, tâches ouvertes, fichiers à synchroniser. L'aide détaillée
+d'une commande s'obtient avec `workflow-generator help <commande>` ou `<commande> --help`.
+
 ```sh
 workflow-generator init --systems claude,opencode   # crée .harness/ et génère tout
 workflow-generator add skill perf-audit             # nouveau skill, généré pour chaque système actif
