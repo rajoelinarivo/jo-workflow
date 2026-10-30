@@ -1,0 +1,6 @@
+{
+  "description": "Add git branch, pending changes and harness freshness to the agent context at session start",
+  "event": "session-start",
+  "blocking": false,
+  "timeout": 15
+}

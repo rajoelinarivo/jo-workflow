@@ -1,0 +1,6 @@
+{
+  "description": "When the agent stops with uncommitted changes, run lint and typecheck; on failure ask it to fix them once",
+  "event": "stop",
+  "blocking": true,
+  "timeout": 300
+}

@@ -1,0 +1,6 @@
+{
+  "description": "Block destructive shell commands (recursive deletes of root/home, force-push to main, piping downloads to a shell...)",
+  "event": "before-shell",
+  "blocking": true,
+  "timeout": 10
+}
