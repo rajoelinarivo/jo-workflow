@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { exists, read, write, walk, toPosix, hash, parseFrontmatter, frontmatter } from "./util.js";
 import { CATALOG, KINDS, itemPath, itemHash, loadCatalog } from "./project.js";
-import { renderAll, CLAUDE_TOOLS } from "./render.js";
+import { renderAll, extraPlaceholders, CLAUDE_TOOLS } from "./render.js";
 
 const DIR_KINDS = ["skill", "hook"];
 
@@ -31,16 +31,21 @@ export { installFromCatalog };
  * An item is upgraded only when its content still equals the catalog version it was
  * installed from (recorded in lock.json), unless `force`.
  */
-export function upgrade(project, { force = false, dryRun = false } = {}) {
+export function upgrade(project, { force = false, dryRun = false, addNew = false } = {}) {
   const lock = project.lock();
-  const report = { updated: [], current: [], modified: [], available: [], custom: [] };
+  const report = { updated: [], current: [], modified: [], available: [], added: [], custom: [] };
   const catalog = loadCatalog();
   for (const kind of KINDS) {
     const catalogNames = new Set(catalog[kind].map((i) => i.name));
     for (const item of catalog[kind]) {
       const key = `${kind}/${item.name}`;
       if (!exists(itemPath(project.harness, kind, item.name))) {
-        report.available.push(key);
+        if (!addNew) {
+          report.available.push(key);
+          continue;
+        }
+        lock.catalog[key] = dryRun ? itemHash(CATALOG, kind, item.name) : installFromCatalog(project, kind, item.name);
+        report.added.push(key);
         continue;
       }
       const latest = itemHash(CATALOG, kind, item.name);
@@ -74,6 +79,12 @@ const escapeRe =(s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 /** Turns rendered values back into the placeholders the original source used. */
 export function unrender(text, original, manifest) {
   let out = text;
+  for (const [key, value] of Object.entries(manifest.placeholders || {})) {
+    if (!value || !new RegExp(`\\{\\{\\s*${escapeRe(key)}\\s*\\}\\}`).test(original)) continue;
+    out = value.includes("\n")
+      ? out.split(value).join(`{{${key}}}`)
+      : out.replace(new RegExp(`(?<![\\w-])${escapeRe(value)}(?![\\w-])`, "g"), `{{${key}}}`);
+  }
   const keys = [...new Set([...original.matchAll(/\{\{\s*commands\.([A-Za-z0-9_-]+)\s*\}\}/g)].map((m) => m[1]))];
   // Longer commands first so `npm test` does not eat part of `npm test -- --watch`.
   keys.sort((a, b) => (manifest.commands[b] || "").length - (manifest.commands[a] || "").length);
@@ -143,8 +154,10 @@ function adoptIntoSource(project, manifest, source, text) {
  * Returns { adopted: [{path, into}], skipped: [{path, reason}], forcePaths }.
  */
 export function adopt(project, paths, { override = false } = {}) {
-  const manifest = project.manifest();
-  const rendered = renderAll(manifest, project.items());
+  const items = project.items();
+  const base = project.manifest();
+  const manifest = { ...base, placeholders: extraPlaceholders(base, items) };
+  const rendered = renderAll(base, items);
   const byPath = new Map(rendered.files.map((f) => [f.path, f]));
   const merged = new Set(rendered.merges.map((m) => m.path));
   const report = { adopted: [], skipped: [], forcePaths: new Set() };
