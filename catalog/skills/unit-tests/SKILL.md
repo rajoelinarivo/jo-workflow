@@ -57,4 +57,4 @@ Keep only the cases that exercise distinct behavior.
 - Shared mutable fixtures between tests.
 - Chasing coverage percentage with assertion-free tests.
 
-Record testing conventions you establish (helpers, fixture patterns) in `.harness/memory/conventions.md`, and testability traps in `.harness/memory/lessons.md`.
+Record testing conventions you establish (helpers, fixture patterns) in `.jow/memory/conventions.md`, and testability traps in `.jow/memory/lessons.md`.

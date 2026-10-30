@@ -20,7 +20,7 @@ Phases run in order by the `dev` orchestrator. [gate] = stop for approval in gui
 - Check: build, test, lint
 
 ## 4. Harness
-- Do: run `jo-workflow detect`, review the commands in `.harness/harness.json`, run `jo-workflow sync`; fill `project.md`, `conventions.md` and `architecture.md`.
+- Do: run `jo-workflow detect`, review the commands in `.jow/harness.json`, run `jo-workflow sync`; fill `project.md`, `conventions.md` and `architecture.md`.
 
 ## 5. Close [gate]
 - Use: skill `documentation` (README: setup and commands).

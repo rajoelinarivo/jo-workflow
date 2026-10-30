@@ -1,5 +1,5 @@
 {
-  "description": "Format edited files with the formatter configured in .harness/harness.json formatters",
+  "description": "Format edited files with the formatter configured in .jow/harness.json formatters",
   "event": "after-edit",
   "blocking": false,
   "timeout": 60

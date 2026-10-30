@@ -9,7 +9,7 @@ load: always
 For any change beyond a trivial fix: read the relevant memory and code, state the goal and acceptance criteria, write a short step plan, and confirm it with the user when the change is non-trivial or the scope is unclear. Ask before expanding scope.
 
 ## Which skill for which situation
-- A whole task from request to done, or resuming one: `dev` (orchestrator, picks a workflow from `.harness/workflows/`)
+- A whole task from request to done, or resuming one: `dev` (orchestrator, picks a workflow from `.jow/workflows/`)
 - New project or module from scratch: `project-bootstrap`
 - Build a feature or user story: `implement-feature`
 - Generate code from a spec, schema or templates: `code-generation`
@@ -44,10 +44,10 @@ Autonomous loops run headless until a check passes: `jo-workflow loop <name>`.
 - `migrate-step`: work through `MIGRATION.md` one unchecked item at a time.
 
 ## Memory
-`.harness/memory/` is the project's long-term memory and the source of truth for these instructions. Update it in the same task when something durable appears:
+`.jow/memory/` is the project's long-term memory and the source of truth for these instructions. Update it in the same task when something durable appears:
 - A decision with alternatives -> `decisions.md` (dated ADR).
 - A trap, gotcha or debugging insight -> `lessons.md`.
 - A coding rule -> `conventions.md`.
 - A structural change -> `architecture.md`.
-- Project facts or commands -> `project.md` / `.harness/harness.json`.
-Never store secrets. Never edit generated files (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.agents/`, `.opencode/`, `.codex/`); edit `.harness/` and run `jo-workflow sync`.
+- Project facts or commands -> `project.md` / `.jow/harness.json`.
+Never store secrets. Never edit generated files (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.agents/`, `.opencode/`, `.codex/`); edit `.jow/` and run `jo-workflow sync`.

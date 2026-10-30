@@ -1,4 +1,4 @@
-// Loads the neutral harness of a project (.harness/) and the built-in catalog.
+// Loads the neutral harness of a project (.jow/) and the built-in catalog.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { exists, read, readJson, walk, listDirs, parseFrontmatter, hash, write, json } from "./util.js";
@@ -36,7 +36,7 @@ export function defaultManifest(name) {
   };
 }
 
-/** Reads every item of one kind from a base dir laid out like .harness/ or catalog/. */
+/** Reads every item of one kind from a base dir laid out like .jow/ or catalog/. */
 export function readItems(base, kind) {
   const dir = path.join(base, KIND_DIRS[kind]);
   if (kind === "skill") {
@@ -63,7 +63,7 @@ export function readItems(base, kind) {
 
 const DIR_KINDS = ["skill", "hook"];
 
-/** Path of an item under a base laid out like .harness/ or catalog/. */
+/** Path of an item under a base laid out like .jow/ or catalog/. */
 export function itemPath(base, kind, name) {
   const dir = path.join(base, KIND_DIRS[kind]);
   return DIR_KINDS.includes(kind) ? path.join(dir, name) : path.join(dir, `${name}.md`);
@@ -82,13 +82,19 @@ export function loadCatalog() {
   return Object.fromEntries(KINDS.map((k) => [k, readItems(CATALOG, k)]));
 }
 
+export const LEGACY_HINT = "this project uses .harness/, the source folder of versions before 0.3: rename it to .jow (git mv .harness .jow), then run 'jo-workflow upgrade' and 'jo-workflow sync'";
+
 export class Project {
   constructor(root) {
     this.root = root;
-    this.harness = path.join(root, ".harness");
+    this.harness = path.join(root, ".jow");
   }
   get initialized() {
     return exists(path.join(this.harness, "harness.json"));
+  }
+  /** True when the project still uses the pre-0.3 source folder .harness/. */
+  get legacy() {
+    return !this.initialized && exists(path.join(this.root, ".harness", "harness.json"));
   }
   get manifestPath() {
     return path.join(this.harness, "harness.json");
@@ -104,7 +110,11 @@ export class Project {
   }
   lock() {
     const lock = readJson(this.lockPath, {});
-    return { version: 1, files: {}, managed: {}, catalog: {}, ...lock };
+    const out = { version: 1, files: {}, managed: {}, catalog: {}, ...lock };
+    // Locks written before 0.3 track the runtime under .harness/: same files, new folder.
+    for (const table of ["files", "managed"])
+      out[table] = Object.fromEntries(Object.entries(out[table]).map(([p, h]) => [p.replace(/^\.harness\//, ".jow/"), h]));
+    return out;
   }
   /** Records (hash) or forgets (null) the catalog version an item was installed from. */
   recordCatalog(kind, name, itemHashValue) {

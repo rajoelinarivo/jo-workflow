@@ -45,7 +45,7 @@ Pick the cheapest technique that applies:
 - Run `{{commands.test}}`, `{{commands.lint}}`, `{{commands.typecheck}}`. For flaky bugs, rerun the loop from step 1.
 
 ## 8. Record
-Add a line to `.harness/memory/lessons.md`: `- YYYY-MM-DD — <root cause and how to avoid it> (<area/file>)` when the bug reveals a non-obvious trap.
+Add a line to `.jow/memory/lessons.md`: `- YYYY-MM-DD — <root cause and how to avoid it> (<area/file>)` when the bug reveals a non-obvious trap.
 
 ## Definition of done
 - Root cause explained; fix targets it.

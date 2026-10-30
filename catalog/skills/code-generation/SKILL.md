@@ -15,14 +15,14 @@ argument-hint: "[spec/schema path or what to generate]"
 ## 2. Find existing tooling first
 - Search the repo for generator configs, scripts and markers: generator config files, `generated` folders, "DO NOT EDIT" / "auto-generated" headers, build tasks, package scripts, Makefile targets.
 - If a generator is already in use, reuse it with the same version and options. Do not introduce a second generator for the same job.
-- If none exists, choose the ecosystem's standard, maintained generator. Record the choice (tool, version, options) as an ADR in `.harness/memory/decisions.md`.
+- If none exists, choose the ecosystem's standard, maintained generator. Record the choice (tool, version, options) as an ADR in `.jow/memory/decisions.md`.
 - Hand-writing code is acceptable only when the output is small and no reasonable generator exists; still keep it derived from the schema and say so in a header comment.
 
 ## 3. Configure for determinism
 - Pin the generator version (lockfile, tool manifest, container image tag).
 - Fix all options in a committed config file; no interactive prompts, no machine-specific paths.
 - Remove nondeterminism: timestamps in headers, unordered map iteration, absolute paths. Run the generator twice and confirm a zero diff.
-- Provide a single regeneration entry point (script or build task) and document it in `.harness/memory/conventions.md`.
+- Provide a single regeneration entry point (script or build task) and document it in `.jow/memory/conventions.md`.
 
 ## 4. Place and isolate generated output
 - Put generated files in a dedicated directory or with a recognizable suffix, with a "generated, do not edit" header.
@@ -51,4 +51,4 @@ argument-hint: "[spec/schema path or what to generate]"
 - Generating huge surfaces nobody uses: restrict to needed operations/tables when the tool allows.
 - Naming that violates project conventions: fix via generator options, not by renaming output.
 
-Record recurring generator gotchas in `.harness/memory/lessons.md`.
+Record recurring generator gotchas in `.jow/memory/lessons.md`.

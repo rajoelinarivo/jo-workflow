@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// jo-workflow: creates and maintains an AI agent harness (.harness/) and
+// jo-workflow: creates and maintains an AI agent harness (.jow/) and
 // renders it for Claude Code, OpenCode and Codex.
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline/promises";
 import { spawnSync } from "node:child_process";
 import { exists, write, json, readJson, walk } from "./util.js";
-import { Project, defaultManifest, loadCatalog, readItems, itemPath, CATALOG, GENERATOR_ROOT, SYSTEMS, KINDS, KIND_DIRS, HOOK_EVENTS } from "./project.js";
+import { Project, defaultManifest, loadCatalog, readItems, itemPath, CATALOG, GENERATOR_ROOT, SYSTEMS, KINDS, KIND_DIRS, HOOK_EVENTS, LEGACY_HINT } from "./project.js";
 import { detectStacks, applyStacks } from "./stacks.js";
 import { sync } from "./sync.js";
 import { upgrade, adopt, installFromCatalog } from "./maintain.js";
@@ -117,7 +117,7 @@ function scaffold(kind, name) {
     case "loop":
       return `---\nname: ${name}\ndescription: "TODO: what this loop achieves."\nuntil: test\nmax-iterations: 10\n---\nTODO: the task to perform at each iteration.\n\nMake one focused change per iteration. Never disable or skip checks to make them pass.\n`;
     case "workflow":
-      return `---\nname: ${name}\ndescription: "TODO: the kind of task this workflow handles."\n---\n# ${name}\n\nPhases run in order by the \`dev\` orchestrator. [gate] = stop for approval in guided autonomy.\nCheck names refer to the project commands (project memory / .harness/harness.json).\n\n## 1. Understand\n- Use: TODO skill or agent\n- Do: TODO\n- Done when: TODO\n\n## 2. Plan [gate]\n- Use: agent \`planner\`\n- Done when: steps written in the task file.\n\n## 3. Do\n- Use: TODO\n- Check: test, lint\n\n## 4. Review and close [gate]\n- Use: skill \`code-review\`, skill \`remember\`\n- Done when: findings fixed, task summary written.\n`;
+      return `---\nname: ${name}\ndescription: "TODO: the kind of task this workflow handles."\n---\n# ${name}\n\nPhases run in order by the \`dev\` orchestrator. [gate] = stop for approval in guided autonomy.\nCheck names refer to the project commands (project memory / .jow/harness.json).\n\n## 1. Understand\n- Use: TODO skill or agent\n- Do: TODO\n- Done when: TODO\n\n## 2. Plan [gate]\n- Use: agent \`planner\`\n- Done when: steps written in the task file.\n\n## 3. Do\n- Use: TODO\n- Check: test, lint\n\n## 4. Review and close [gate]\n- Use: skill \`code-review\`, skill \`remember\`\n- Done when: findings fixed, task summary written.\n`;
     case "hook":
       return {
         "hook.json": json({ description: "TODO", event: "after-edit", blocking: false, timeout: 60 }),
@@ -144,6 +144,7 @@ function addElement(project, kind, name, opts) {
 // ---------------------------------------------------------------- commands
 
 async function cmdInit(project, opts) {
+  if (project.legacy) throw new UsageError(LEGACY_HINT);
   if (project.initialized && !opts.force) throw new UsageError(`${project.manifestPath} already exists; use 'sync', 'add' or 'system add' (or --force to re-init)`);
   fs.mkdirSync(project.root, { recursive: true });
   const fallbackName = path.basename(project.root);
@@ -164,8 +165,8 @@ async function cmdInit(project, opts) {
       count++;
     }
   }
-  console.log(`Initialized .harness/ for '${name}' (${systems.join(", ")}): ${count} element(s), stack: ${manifest.stack.join(", ") || "not detected"}`);
-  if (!manifest.stack.length) console.log("  No stack detected: fill .harness/harness.json 'commands' later, or run 'jo-workflow detect'.");
+  console.log(`Initialized .jow/ for '${name}' (${systems.join(", ")}): ${count} element(s), stack: ${manifest.stack.join(", ") || "not detected"}`);
+  if (!manifest.stack.length) console.log("  No stack detected: fill .jow/harness.json 'commands' later, or run 'jo-workflow detect'.");
   return runSync(project, opts);
 }
 
@@ -233,7 +234,7 @@ function cmdUpgrade(project, opts) {
   const verb = opts.dryRun ? "would upgrade" : "upgrade";
   for (const k of r.updated) console.log(`  ${verb}  ${k}`);
   for (const k of r.added) console.log(`  ${opts.dryRun ? "would add" : "add"}      ${k}`);
-  for (const k of r.modified) console.log(`  keep     ${k} (changed in .harness/; --force replaces it with the catalog version)`);
+  for (const k of r.modified) console.log(`  keep     ${k} (changed in .jow/; --force replaces it with the catalog version)`);
   if (r.available.length) console.log(`  new in catalog (install with 'add <kind> <name>' or 'upgrade --add-new'): ${r.available.join(", ")}`);
   console.log(`${r.updated.length} upgraded, ${r.added.length} added, ${r.current.length} already current, ${r.modified.length} kept, ${r.custom.length} custom.`);
   if (opts.dryRun) return 0;
@@ -246,7 +247,7 @@ function cmdAdopt(project, paths, opts) {
   for (const a of r.adopted) console.log(`  adopt   ${a.path} -> ${a.into}`);
   for (const s of r.skipped) console.log(`  skip    ${s.path} (${s.reason})`);
   if (!r.adopted.length) return r.skipped.length ? 1 : 0;
-  console.log("Review the result with 'git diff .harness' (placeholders are restored where the source used them).");
+  console.log("Review the result with 'git diff .jow' (placeholders are restored where the source used them).");
   return runSync(project, { ...opts, force: false }, r.forcePaths);
 }
 
@@ -279,6 +280,7 @@ export async function main(argv) {
   }
 
   const needsHarness = (fn) => {
+    if (project.legacy) throw new UsageError(LEGACY_HINT);
     if (!project.initialized) throw new UsageError(`no harness in ${project.root}; run 'jo-workflow init' first`);
     return fn();
   };

@@ -1,5 +1,5 @@
 {
-  "description": "Block edits to secrets and to generated harness files (edit .harness/ instead)",
+  "description": "Block edits to secrets and to generated harness files (edit .jow/ instead)",
   "event": "before-edit",
   "blocking": true,
   "timeout": 10

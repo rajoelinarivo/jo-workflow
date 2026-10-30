@@ -19,7 +19,7 @@ Build a table in `MIGRATION.md`:
 | Component / dependency | Current | Target-compatible version | Breaking changes | Action |
 |---|---|---|---|---|
 
-Flag blockers (no compatible version, abandoned dependency) and resolve them first: upgrade, replace or vendor. Record significant choices as ADRs in `.harness/memory/decisions.md`.
+Flag blockers (no compatible version, abandoned dependency) and resolve them first: upgrade, replace or vendor. Record significant choices as ADRs in `.jow/memory/decisions.md`.
 
 ## 3. Baseline
 - Ensure `{{commands.test}}` is green on the current version. If not, stop and fix or report first.
@@ -60,8 +60,8 @@ Each item must be small enough for one iteration. The `migrate-step` loop (`jo-w
 ## Definition of done
 - Every checklist item checked; shims and old code removed.
 - Regression baseline shows no unexplained differences; explained ones are documented.
-- Commands in `.harness/harness.json` updated if tooling changed (`jo-workflow detect`, then `sync`).
-- Lessons in `.harness/memory/lessons.md`; decisions in `decisions.md`; `architecture.md` updated.
+- Commands in `.jow/harness.json` updated if tooling changed (`jo-workflow detect`, then `sync`).
+- Lessons in `.jow/memory/lessons.md`; decisions in `decisions.md`; `architecture.md` updated.
 
 ## Pitfalls
 - Upgrading everything at once and debugging hundreds of errors with no baseline.

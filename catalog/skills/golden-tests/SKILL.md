@@ -46,7 +46,7 @@ Normalization must not hide the behavior under test.
 3. Fix unintended changes in code. Never update a golden to make a bug pass.
 4. Regenerate only the intended goldens with the explicit update flag/env var (the project's documented one), scoped to the affected tests.
 5. Review the golden file diff in version control as carefully as code; mention changed goldens in the change summary.
-Document the update command in `.harness/memory/conventions.md`.
+Document the update command in `.jow/memory/conventions.md`.
 
 ## Definition of done
 - Snapshots are deterministic across runs, machines and OSes.

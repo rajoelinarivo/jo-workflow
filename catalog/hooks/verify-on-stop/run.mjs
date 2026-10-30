@@ -14,7 +14,7 @@ try {
 }
 if (!changed) process.exit(0);
 
-const { commands = {} } = JSON.parse(fs.readFileSync(".harness/harness.json", "utf8"));
+const { commands = {} } = JSON.parse(fs.readFileSync(".jow/harness.json", "utf8"));
 const failures = [];
 for (const key of ["lint", "typecheck"]) {
   const cmd = commands[key];

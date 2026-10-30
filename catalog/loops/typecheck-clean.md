@@ -17,6 +17,6 @@ Rules:
 - Never disable or skip tests or lint rules.
 - Do not change runtime behavior unless fixing a real bug, and say so.
 - If the fix requires a design decision, a dependency upgrade or touching a public API: stop, make no speculative change, and explain what is blocking.
-- Record non-obvious typing traps in `.harness/memory/lessons.md`.
+- Record non-obvious typing traps in `.jow/memory/lessons.md`.
 
 End the iteration with a short summary: error fixed, cause, remaining error count.

@@ -1,13 +1,13 @@
 ---
 name: remember
-description: "Record a durable fact into the right .harness/memory file so future sessions know it: decisions as dated ADRs in decisions.md, gotchas and lessons in lessons.md, conventions in conventions.md, structure in architecture.md, project facts in project.md. Keeps entries short and never stores secrets. Use when the user says remember this, note that, from now on, always/never do X, we decided, lesson learned, add to memory, or when a session uncovers a decision, convention or trap worth keeping."
+description: "Record a durable fact into the right .jow/memory file so future sessions know it: decisions as dated ADRs in decisions.md, gotchas and lessons in lessons.md, conventions in conventions.md, structure in architecture.md, project facts in project.md. Keeps entries short and never stores secrets. Use when the user says remember this, note that, from now on, always/never do X, we decided, lesson learned, add to memory, or when a session uncovers a decision, convention or trap worth keeping."
 category: memory
 user-invocable: true
 argument-hint: "[fact, decision or lesson to remember]"
 ---
 # Remember
 
-Memory lives in `.harness/memory/*.md`. It is loaded into future sessions (files with `load: always`) or linked (`load: reference`). Only durable, project-specific knowledge belongs there.
+Memory lives in `.jow/memory/*.md`. It is loaded into future sessions (files with `load: always`) or linked (`load: reference`). Only durable, project-specific knowledge belongs there.
 
 ## 1. Decide if it is worth storing
 Store it if it is:
@@ -46,7 +46,7 @@ Use today's date in `YYYY-MM-DD`. Keep each entry to a few lines; link to files 
 - Before adding, search the file for an existing entry; update it instead of duplicating.
 - If a new decision replaces an old one, mark the old ADR `Status: superseded by ADR-NNN`; do not delete history.
 - Remove lessons that no longer apply (the trap was fixed at the root) and say so in the change summary.
-- `.harness/memory/` is the source of truth. Do not edit CLAUDE.md, AGENTS.md or other generated copies; run `jo-workflow sync` after editing if the rendered instructions must update now.
+- `.jow/memory/` is the source of truth. Do not edit CLAUDE.md, AGENTS.md or other generated copies; run `jo-workflow sync` after editing if the rendered instructions must update now.
 
 ## 5. Never store
 - Secrets, tokens, passwords, private keys, connection strings with credentials.

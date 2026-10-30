@@ -11,7 +11,7 @@ argument-hint: "[problem or question to research]"
 - State the problem in one sentence, independent of any solution.
 - List hard constraints (must-haves): language/runtime, license, hosting, compliance, budget, latency, data volume.
 - List soft criteria with weights (1–3): e.g. maturity, maintenance activity, performance, learning curve, integration effort, operational cost, lock-in, security track record, team familiarity.
-- Check `.harness/memory/decisions.md` for prior decisions that constrain or already answer the question.
+- Check `.jow/memory/decisions.md` for prior decisions that constrain or already answer the question.
 
 ## 2. Gather candidates
 - Collect 3–5 options, including "do nothing / build minimal in-house" and the option already used elsewhere in the codebase.
@@ -41,7 +41,7 @@ Produce a table:
 - If no option is clearly better, say so and recommend the cheapest reversible one.
 
 ## 6. Log the decision
-Append an ADR to `.harness/memory/decisions.md`:
+Append an ADR to `.jow/memory/decisions.md`:
 ```
 ## ADR-NNN: <title> (YYYY-MM-DD)
 Status: proposed | accepted

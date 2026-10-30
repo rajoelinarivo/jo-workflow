@@ -1,11 +1,11 @@
 # Neutral harness format
 
 A project managed by `jo-workflow` keeps the **single source of truth** of its
-agent harness in `.harness/`. `jo-workflow sync` renders it into the files each
-enabled system reads (Claude Code, OpenCode, Codex). Edit `.harness/`, then sync.
+agent harness in `.jow/`. `jo-workflow sync` renders it into the files each
+enabled system reads (Claude Code, OpenCode, Codex). Edit `.jow/`, then sync.
 
 ```
-.harness/
+.jow/
   harness.json          manifest: systems, stack, commands, permissions
   lock.json             generated files and their hashes, catalog versions of installed
                         items (commit it, do not edit)
@@ -23,7 +23,7 @@ enabled system reads (Claude Code, OpenCode, Codex). Edit `.harness/`, then sync
 ## Orchestrator and workflows
 
 The `dev` skill is the entry point: `/dev <request>` (Codex: `$dev <request>`). It
-classifies the request, picks a workflow, creates `.harness/work/<date>-<slug>.md` and runs
+classifies the request, picks a workflow, creates `.jow/work/<date>-<slug>.md` and runs
 the workflow phases through the other skills and agents. Skills stay usable directly.
 
 `harness.json`:
@@ -60,9 +60,9 @@ Extra placeholders: `{{harness.workflows}}` (table of installed workflows),
 
 - `upgrade` replaces an installed item with the current catalog version only when the
   item still equals the catalog version it was installed from (`lock.json` `catalog`).
-  Items changed in `.harness/` are kept unless `--force`.
+  Items changed in `.jow/` are kept unless `--force`.
 - `adopt <file>` keeps a hand edit of a generated file. Skill files and agent files
-  (Claude, OpenCode or Codex flavor) are written back into their `.harness/` source:
+  (Claude, OpenCode or Codex flavor) are written back into their `.jow/` source:
   body, description, argument hint and tools, with placeholders restored where the
   source used them. `.codex/config.toml`, or any file with `--override`, is copied to
   `overrides/<path>` and from then on generated verbatim.

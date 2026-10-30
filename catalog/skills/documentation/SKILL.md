@@ -33,10 +33,10 @@ Write for one audience per document.
 - Add to the `Unreleased` section unless releasing.
 
 ## 5. Architecture memory
-Update `.harness/memory/architecture.md` whenever components, boundaries, data flow, external dependencies or deployment change:
+Update `.jow/memory/architecture.md` whenever components, boundaries, data flow, external dependencies or deployment change:
 - components and responsibilities, main data flows, storage, integrations, entry points.
 - Keep it short and factual; link to the full architecture doc if one exists.
-Record the reasons behind structural choices in `.harness/memory/decisions.md`, not in architecture.md.
+Record the reasons behind structural choices in `.jow/memory/decisions.md`, not in architecture.md.
 
 ## 6. Verify
 - Commands and examples executed successfully.
@@ -48,7 +48,7 @@ Record the reasons behind structural choices in `.harness/memory/decisions.md`, 
 - Docs match current behavior; no reference to removed features or old commands.
 - README quick start works on a fresh clone.
 - Changelog updated for user-visible changes.
-- `.harness/memory/architecture.md` reflects the current structure.
+- `.jow/memory/architecture.md` reflects the current structure.
 
 ## Pitfalls
 - Describing intended behavior instead of actual behavior.

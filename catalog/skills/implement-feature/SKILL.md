@@ -9,7 +9,7 @@ argument-hint: "[feature description or ticket]"
 
 ## 1. Understand
 - Restate the feature in 2–4 sentences: inputs, outputs, users, acceptance criteria. If acceptance criteria are missing, propose them and confirm.
-- Read `.harness/memory/conventions.md`, `.harness/memory/architecture.md` and the relevant `decisions.md` entries.
+- Read `.jow/memory/conventions.md`, `.jow/memory/architecture.md` and the relevant `decisions.md` entries.
 - Locate the code that will change: entry points, similar existing features to copy patterns from, tests that cover the area.
 - List open questions. Ask the ones that change the design; make and state assumptions for the rest.
 
@@ -50,7 +50,7 @@ Apply the `code-review` skill to your own diff: correctness, edge cases, error p
 - Build, lint, typecheck and tests green.
 - No unrelated changes in the diff.
 - Docs and changelog updated if behavior is user-visible.
-- Design decisions recorded in `.harness/memory/decisions.md`; surprises or gotchas in `.harness/memory/lessons.md`.
+- Design decisions recorded in `.jow/memory/decisions.md`; surprises or gotchas in `.jow/memory/lessons.md`.
 
 ## Pitfalls
 - Coding before the plan: leads to rewrites and oversized diffs.

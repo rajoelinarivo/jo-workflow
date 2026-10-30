@@ -2,7 +2,7 @@
 // per-command help (`help <command>` or `<command> --help`).
 import fs from "node:fs";
 import path from "node:path";
-import { KINDS, SYSTEMS } from "./project.js";
+import { KINDS, SYSTEMS, LEGACY_HINT } from "./project.js";
 import { sync } from "./sync.js";
 
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR;
@@ -20,13 +20,13 @@ export const COMMANDS = [
     name: "init",
     group: "Start",
     usage: "init [--systems LIST] [--name NAME] [--minimal]",
-    summary: "Create .harness/ from the catalog and generate every system's files",
-    details: "Detects the stack (Node, Python, Go, Rust, Java, .NET, PHP, Ruby, ...) to fill the project commands, installs the catalog into .harness/ and runs sync. Asks for the name and systems when they are not given and the terminal is interactive.",
+    summary: "Create .jow/ from the catalog and generate every system's files",
+    details: "Detects the stack (Node, Python, Go, Rust, Java, .NET, PHP, Ruby, ...) to fill the project commands, installs the catalog into .jow/ and runs sync. Asks for the name and systems when they are not given and the terminal is interactive.",
     options: [
       ["--systems LIST", `${SYSTEMS.join(",")} or all (default: asked, or all with --yes)`],
       ["--name NAME", "project name (default: folder name)"],
       ["--minimal", "install a core subset: dev orchestrator, 3 workflows, essential skills, agents and hooks"],
-      ["--force", "re-initialize a project that already has .harness/"],
+      ["--force", "re-initialize a project that already has .jow/"],
     ],
     examples: ["init", "init --systems claude,opencode --minimal --yes", "init --dir ../my-app --systems all"],
   },
@@ -35,7 +35,7 @@ export const COMMANDS = [
     group: "Elements",
     usage: `add <${KIND_LIST}> <name>`,
     summary: "Add an element from the catalog, or a blank template for a new name",
-    details: "The element is written to .harness/ then rendered for every enabled system: a skill added once reaches Claude Code, OpenCode and Codex.",
+    details: "The element is written to .jow/ then rendered for every enabled system: a skill added once reaches Claude Code, OpenCode and Codex.",
     options: [["--force", "replace an element that already exists"]],
     examples: ["add skill perf-audit", "add workflow release", "add hook format-on-edit"],
   },
@@ -65,8 +65,8 @@ export const COMMANDS = [
     name: "sync",
     group: "Systems and generation",
     usage: "sync [--dry-run] [--force]",
-    summary: "Render .harness/ into the files of each enabled system",
-    details: "Run it after editing anything in .harness/. Files modified by hand are kept and reported; adopt them or overwrite them with --force.",
+    summary: "Render .jow/ into the files of each enabled system",
+    details: "Run it after editing anything in .jow/. Files modified by hand are kept and reported; adopt them or overwrite them with --force.",
     options: [
       ["--dry-run", "show what would change"],
       ["--force", "overwrite files modified by hand"],
@@ -83,7 +83,7 @@ export const COMMANDS = [
     name: "detect",
     group: "Systems and generation",
     usage: "detect",
-    summary: "Detect the stack and fill empty commands in .harness/harness.json",
+    summary: "Detect the stack and fill empty commands in .jow/harness.json",
     details: "Never overwrites a command that is already set.",
   },
   {
@@ -91,7 +91,7 @@ export const COMMANDS = [
     group: "Maintenance",
     usage: "upgrade [--dry-run] [--add-new] [--force]",
     summary: "Update installed elements from the generator's catalog",
-    details: "Only elements still identical to the catalog version they were installed from are replaced; elements you changed in .harness/ are kept.",
+    details: "Only elements still identical to the catalog version they were installed from are replaced; elements you changed in .jow/ are kept.",
     options: [
       ["--dry-run", "show what would be upgraded"],
       ["--add-new", "also install catalog elements not installed yet"],
@@ -104,7 +104,7 @@ export const COMMANDS = [
     group: "Maintenance",
     usage: "adopt <generated-file>... [--override]",
     summary: "Keep hand edits made directly in generated files",
-    details: "Skill and agent files go back to their .harness/ source, so the edit reaches every system. .codex/config.toml becomes an override in .harness/overrides/. AGENTS.md and CLAUDE.md are refused: edit .harness/memory/ instead.",
+    details: "Skill and agent files go back to their .jow/ source, so the edit reaches every system. .codex/config.toml becomes an override in .jow/overrides/. AGENTS.md and CLAUDE.md are refused: edit .jow/memory/ instead.",
     options: [["--override", "freeze this file as-is (it will no longer receive updates)"]],
     examples: ["adopt .claude/skills/bug-hunt/SKILL.md", "adopt .codex/config.toml"],
   },
@@ -113,7 +113,7 @@ export const COMMANDS = [
     group: "Run",
     usage: "loop <name> [--system S] [--max N] [--dry-run]",
     summary: "Run an agent headless until the loop's check passes",
-    details: "Loops are defined in .harness/loops/. Each iteration runs claude -p, codex exec or opencode run with the loop prompt, then the check command.",
+    details: "Loops are defined in .jow/loops/. Each iteration runs claude -p, codex exec or opencode run with the loop prompt, then the check command.",
     options: [
       ["--system S", "claude, opencode or codex (default: first enabled system)"],
       ["--max N", "maximum number of iterations"],
@@ -143,6 +143,7 @@ const table = (rows, width = Math.max(...rows.map(([a]) => a.length)), indent = 
 
 /** Short state of the harness in `root`, or how to start when there is none. */
 function projectState(project) {
+  if (project.legacy) return yellow(`Old harness found: ${LEGACY_HINT}.`);
   if (!project.initialized) {
     return [
       `${yellow("No harness in this directory.")} Start with:`,

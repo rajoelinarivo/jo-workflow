@@ -3,25 +3,25 @@
 Génère et maintient le harnais d'agents IA d'un projet (skills, subagents, hooks,
 memory, loops) pour **Claude Code**, **OpenCode** et **Codex**, quel que soit le stack.
 
-La source de vérité vit dans le projet, dans `.harness/` (format neutre, voir
+La source de vérité vit dans le projet, dans `.jow/` (format neutre, voir
 [docs/FORMAT.md](docs/FORMAT.md)). `sync` la traduit dans les fichiers de chaque système.
 Un fichier généré modifié à la main n'est jamais écrasé sans `--force`.
 
 - `upgrade` : quand le catalogue du générateur évolue, met à jour les éléments installés,
-  sauf ceux que le dev a modifiés dans `.harness/` (`--force` pour les remplacer aussi).
+  sauf ceux que le dev a modifiés dans `.jow/` (`--force` pour les remplacer aussi).
 - `adopt <fichier>` : garde une modification faite directement dans un fichier généré.
-  - Un skill ou un agent repart dans sa source `.harness/`, avec les placeholders restaurés,
+  - Un skill ou un agent repart dans sa source `.jow/`, avec les placeholders restaurés,
     et la modification atteint donc tous les systèmes.
   - `.codex/config.toml`, ou tout fichier passé avec `--override`, devient une surcharge
-    dans `.harness/overrides/`.
-  - `AGENTS.md` et `CLAUDE.md` sont refusés : leur contenu se change dans `.harness/memory/`.
+    dans `.jow/overrides/`.
+  - `AGENTS.md` et `CLAUDE.md` sont refusés : leur contenu se change dans `.jow/memory/`.
 
 ## Point d'entrée : l'orchestrateur `/dev`
 
 Le dev peut lancer `/dev <demande>` (`$dev <demande>` sous Codex). L'orchestrateur :
 - choisit un workflow (feature, bugfix, refactor, migration, research, testing,
   generation, bootstrap ou quick) ;
-- suit la tâche dans `.harness/work/` ;
+- suit la tâche dans `.jow/work/` ;
 - enchaîne les phases en s'appuyant sur les skills et les agents, avec validation du dev
   aux étapes clés.
 
@@ -31,7 +31,7 @@ Le dev peut lancer `/dev <demande>` (`$dev <demande>` sous Codex). L'orchestrate
   l'orchestrateur, même sans taper `/dev`.
 - Appeler directement un skill (`/bug-hunt`, `/refactor`…) ou un agent court-circuite
   l'orchestrateur.
-- L'autonomie se règle dans `.harness/harness.json` (`orchestrator.autonomy`) :
+- L'autonomie se règle dans `.jow/harness.json` (`orchestrator.autonomy`) :
   - `guided` : validation après le plan et à la fin ;
   - `step` : validation à chaque phase ;
   - `auto` : arrêt seulement en cas de blocage.
@@ -50,15 +50,15 @@ son état : systèmes, éléments, tâches ouvertes, fichiers à synchroniser. L
 d'une commande s'obtient avec `jo-workflow help <commande>` ou `<commande> --help`.
 
 ```sh
-jo-workflow init --systems claude,opencode   # crée .harness/ et génère tout
+jo-workflow init --systems claude,opencode   # crée .jow/ et génère tout
 jo-workflow add skill perf-audit             # nouveau skill, généré pour chaque système actif
 jo-workflow add hook format-on-edit          # élément du catalogue
 jo-workflow remove skill benchmark
 jo-workflow system add codex                 # active un système de plus
-jo-workflow sync                             # après avoir modifié .harness/
+jo-workflow sync                             # après avoir modifié .jow/
 jo-workflow status                           # ce que sync changerait
 jo-workflow upgrade                          # met à jour depuis le catalogue ce que le dev n'a pas modifié
-jo-workflow adopt .claude/skills/x/SKILL.md  # rapatrie une modif faite à la main vers .harness/
+jo-workflow adopt .claude/skills/x/SKILL.md  # rapatrie une modif faite à la main vers .jow/
 jo-workflow detect                           # détecte le stack, remplit les commandes vides
 jo-workflow loop fix-until-green             # itère en mode headless jusqu'à ce que les tests passent
 jo-workflow list --catalog
@@ -73,12 +73,12 @@ Options globales : `--dir DIR`, `--yes`, `--force`, `--dry-run`, `--minimal` (in
 | `memory/*.md`         | `CLAUDE.md` (`@AGENTS.md`)          | `AGENTS.md`                            | `AGENTS.md`                   |
 | `skills/<n>/`         | `.claude/skills/<n>/`               | lit `.claude/skills` ou `.agents/skills` + `.opencode/commands/<n>.md` | `.agents/skills/<n>/` |
 | `agents/<n>.md`       | `.claude/agents/<n>.md`             | `.opencode/agents/<n>.md`              | `.codex/agents/<n>.toml`      |
-| `hooks/<n>/`          | `.claude/settings.json` (fusion)    | `.opencode/plugins/harness-hooks.js`   | `.codex/hooks.json`           |
+| `hooks/<n>/`          | `.claude/settings.json` (fusion)    | `.opencode/plugins/jow-hooks.js`   | `.codex/hooks.json`           |
 | `harness.json` permissions | `.claude/settings.json` (fusion) | `opencode.json` (fusion)              | `.codex/config.toml`          |
 | `loops/<n>.md`        | `claude -p`                         | `opencode run`                         | `codex exec`                  |
 
 Les hooks sont écrits une seule fois en Node (`run.mjs`). Le pont
-`.harness/runtime/bridge.mjs` traduit le payload de chaque système vers un format commun.
+`.jow/runtime/bridge.mjs` traduit le payload de chaque système vers un format commun.
 
 ## Catalogue
 
@@ -102,7 +102,7 @@ Les hooks sont écrits une seule fois en Node (`run.mjs`). Le pont
 
 ```
 src/        moteur (cli, détection de stack, rendu par système, sync)
-runtime/    copié dans .harness/runtime/ de chaque projet (pont des hooks, loops)
+runtime/    copié dans .jow/runtime/ de chaque projet (pont des hooks, loops)
 catalog/    éléments neutres installables
 docs/       FORMAT.md : contrat du format neutre
 ```

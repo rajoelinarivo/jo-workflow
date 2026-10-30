@@ -37,7 +37,7 @@ Reuse existing project infrastructure for this; check how current integration te
 - Run `{{commands.test-integration}}`; if not configured, run `{{commands.test}}` and check whether integration tests are part of it.
 - Keep integration tests separated (directory, tag or naming suffix) so `{{commands.test-unit}}` stays fast.
 - Run the suite twice in a row and in random order to prove isolation.
-- If a container runtime is required, say so in `.harness/memory/project.md`.
+- If a container runtime is required, say so in `.jow/memory/project.md`.
 
 ## Definition of done
 - The flow is exercised through real infrastructure from entry point to storage and back.
@@ -51,4 +51,4 @@ Reuse existing project infrastructure for this; check how current integration te
 - Real external services in CI: flaky, slow, may cost money or leak data.
 - Hard-coded credentials; use test-only values via environment variables.
 
-Record environment quirks (container startup, ports, timeouts) in `.harness/memory/lessons.md`.
+Record environment quirks (container startup, ports, timeouts) in `.jow/memory/lessons.md`.

@@ -20,8 +20,8 @@ if (branch) {
   if (recent) lines.push("Recent commits:", recent);
 }
 
-// Warn when .harness/ was edited after the last sync.
-const lock = path.join(".harness", "lock.json");
+// Warn when .jow/ was edited after the last sync.
+const lock = path.join(".jow", "lock.json");
 if (fs.existsSync(lock)) {
   const synced = fs.statSync(lock).mtimeMs;
   const stale = [];
@@ -34,15 +34,15 @@ if (fs.existsSync(lock)) {
         else if (fs.statSync(p).mtimeMs > synced + 1000) stale.push(p.split(path.sep).join("/"));
       }
     };
-    walk(path.join(".harness", dir));
+    walk(path.join(".jow", dir));
   }
   if (stale.length) {
-    lines.push(`Harness: ${stale.length} file(s) in .harness/ changed since the last sync (${stale.slice(0, 5).join(", ")}). Generated instructions may be outdated: run \`jo-workflow sync\` or read those files directly.`);
+    lines.push(`Harness: ${stale.length} file(s) in .jow/ changed since the last sync (${stale.slice(0, 5).join(", ")}). Generated instructions may be outdated: run \`jo-workflow sync\` or read those files directly.`);
   }
 }
 
-// Tasks left open by the dev orchestrator (.harness/work/*.md).
-const workDir = path.join(".harness", "work");
+// Tasks left open by the dev orchestrator (.jow/work/*.md).
+const workDir = path.join(".jow", "work");
 if (fs.existsSync(workDir)) {
   const open = [];
   for (const f of fs.readdirSync(workDir).filter((f) => f.endsWith(".md")).sort()) {
@@ -51,7 +51,7 @@ if (fs.existsSync(workDir)) {
     if (status === "done") continue;
     const workflow = text.match(/^workflow:\s*(\S+)/m)?.[1] || "?";
     const next = text.match(/^\s*- \[ \] (.+)$/m)?.[1] || "close the task";
-    open.push(`- .harness/work/${f} (${workflow}, ${status}) - next: ${next}`);
+    open.push(`- .jow/work/${f} (${workflow}, ${status}) - next: ${next}`);
   }
   if (open.length) lines.push("Open tasks (resume with /dev):", ...open);
 }

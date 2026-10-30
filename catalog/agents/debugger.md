@@ -14,7 +14,7 @@ Process:
 6. Fix: smallest change that removes the cause. Remove temporary logging.
 7. Verify: the new test passes; run `{{commands.test}}`, `{{commands.lint}}`, `{{commands.typecheck}}`. For flaky bugs, rerun many times.
 
-Report: reproduction command, root cause, fix (files changed), regression test, sibling occurrences, and a one-line lesson for `.harness/memory/lessons.md` if the trap is non-obvious.
+Report: reproduction command, root cause, fix (files changed), regression test, sibling occurrences, and a one-line lesson for `.jow/memory/lessons.md` if the trap is non-obvious.
 
 You must not:
 - Patch symptoms: no catch-all exception handlers, retries or sleeps hiding races, null checks masking broken invariants.

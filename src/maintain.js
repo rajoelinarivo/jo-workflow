@@ -1,5 +1,5 @@
-// upgrade: refresh .harness/ items from the catalog when the dev did not change them.
-// adopt: bring hand edits of generated files back into .harness/.
+// upgrade: refresh .jow/ items from the catalog when the dev did not change them.
+// adopt: bring hand edits of generated files back into .jow/.
 import fs from "node:fs";
 import path from "node:path";
 import { exists, read, write, walk, toPosix, hash, parseFrontmatter, frontmatter } from "./util.js";
@@ -150,7 +150,7 @@ function adoptIntoSource(project, manifest, source, text) {
 /**
  * Adopts hand edits of generated files. Skill and agent files go back to their
  * neutral source (and so reach every system); other files, or all with `override`,
- * become verbatim overrides in .harness/overrides/.
+ * become verbatim overrides in .jow/overrides/.
  * Returns { adopted: [{path, into}], skipped: [{path, reason}], forcePaths }.
  */
 export function adopt(project, paths, { override = false } = {}) {
@@ -185,8 +185,8 @@ export function adopt(project, paths, { override = false } = {}) {
     }
     if (!entry.source && !override && !OVERRIDE_BY_DEFAULT.includes(rel)) {
       const reason = ["AGENTS.md", "CLAUDE.md"].includes(rel)
-        ? "built from .harness/memory/*.md: put the change in the right memory file, or use --override to freeze this file"
-        : "built from .harness/ (hooks, skills, runtime): change the source, or use --override to freeze this file";
+        ? "built from .jow/memory/*.md: put the change in the right memory file, or use --override to freeze this file"
+        : "built from .jow/ (hooks, skills, runtime): change the source, or use --override to freeze this file";
       report.skipped.push({ path: rel, reason });
       continue;
     }

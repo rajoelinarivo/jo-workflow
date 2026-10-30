@@ -15,7 +15,7 @@ argument-hint: "[code path or operation to benchmark]"
 ## 2. Use proper tooling
 - Use the ecosystem's benchmark harness (built-in benchmark support of the language's test tooling, or the de facto benchmarking library) rather than ad-hoc timers. They handle warmup, iteration counts and statistics.
 - For whole-program or HTTP benchmarks, use a load tool with fixed concurrency, duration and warmup.
-- Run via `{{commands.bench}}` if configured; otherwise add a bench entry point and set it in `.harness/harness.json`, then `jo-workflow sync`.
+- Run via `{{commands.bench}}` if configured; otherwise add a bench entry point and set it in `.jow/harness.json`, then `jo-workflow sync`.
 - Prevent dead-code elimination: consume the results (sink/black-box functions).
 
 ## 3. Control the environment
@@ -38,7 +38,7 @@ argument-hint: "[code path or operation to benchmark]"
 ## 6. Act on results
 - Regression: profile (CPU profiler, allocation profiler, flame graph) before changing code. Optimize the measured hot path, then re-run the full comparison.
 - Improvement claim: report numbers with variance and conditions, not a single run.
-- Record notable findings (hot paths, misleading micro-benchmarks, environment traps) in `.harness/memory/lessons.md`, and performance budgets in `.harness/memory/decisions.md`.
+- Record notable findings (hot paths, misleading micro-benchmarks, environment traps) in `.jow/memory/lessons.md`, and performance budgets in `.jow/memory/decisions.md`.
 
 ## Definition of done
 - Benchmark reproducible with one command; inputs versioned.

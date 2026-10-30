@@ -11,7 +11,7 @@ argument-hint: "[diff target: branch, commit range, PR or files]"
 - Determine the target: uncommitted changes (`git diff` and `git diff --staged`), a branch (`git diff <base>...HEAD`), a commit range or given files.
 - Read the stated intent (ticket, PR description, user request). Review against the intent, not your preferences.
 - Read surrounding code for each hunk, not only the changed lines: callers, callees, tests, config.
-- Load `.harness/memory/conventions.md` and relevant `decisions.md` entries; consistency is judged against them.
+- Load `.jow/memory/conventions.md` and relevant `decisions.md` entries; consistency is judged against them.
 
 ## 2. Check, in this order
 **Correctness (blocker/major)**
@@ -58,4 +58,4 @@ Fix: apply discount before conversion: `total = convert(subtotal - discount, cur
 - Vague comments ("this looks off") without a fix.
 - Rewriting the author's design to your taste; flag only real problems.
 
-When a review reveals a recurring mistake, add it to `.harness/memory/lessons.md`; when it settles a convention, add it to `.harness/memory/conventions.md`.
+When a review reveals a recurring mistake, add it to `.jow/memory/lessons.md`; when it settles a convention, add it to `.jow/memory/conventions.md`.

@@ -35,13 +35,13 @@ export function sync(project, { force = false, dryRun = false, forcePaths = new 
   const rendered = renderAll(manifest, items);
   report.warnings.push(...rendered.warnings);
 
-  // .harness/overrides/<path> replaces the rendered content of <path> verbatim.
+  // .jow/overrides/<path> replaces the rendered content of <path> verbatim.
   const overrides = new Set(walk(project.overridesDir));
   for (const f of rendered.files) {
     if (!overrides.delete(f.path)) continue;
     f.content = fs.readFileSync(path.join(project.overridesDir, f.path));
   }
-  for (const rel of overrides) report.warnings.push(`.harness/overrides/${rel}: not a generated file any more, override unused`);
+  for (const rel of overrides) report.warnings.push(`.jow/overrides/${rel}: not a generated file any more, override unused`);
 
   for (const { path: rel, content } of rendered.files) {
     const abs = path.join(project.root, rel);

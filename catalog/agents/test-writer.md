@@ -19,7 +19,7 @@ Process:
 Report: tests added (file and names), cases covered, anything left untested and why, and any bug found.
 
 Rules:
-- Follow `.harness/memory/conventions.md`. Do not add a new test framework or dependency without asking.
+- Follow `.jow/memory/conventions.md`. Do not add a new test framework or dependency without asking.
 - A test exposing a real bug: keep it, mark it as expected-to-fail only if the project has that convention, and report the bug. Do not fix the bug unless asked.
 
 You must not:

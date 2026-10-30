@@ -37,7 +37,7 @@ For each changed case:
 Do not re-record the baseline to make differences disappear. Re-baseline only after all differences are triaged and approved, and record the new reference commit.
 
 ## 6. Make it repeatable
-- One command to record and one to compare (script or build task), documented in `.harness/memory/conventions.md`.
+- One command to record and one to compare (script or build task), documented in `.jow/memory/conventions.md`.
 - Optionally wire the compare step into `{{commands.test}}` or CI for the duration of a migration.
 
 ## Definition of done
@@ -51,4 +51,4 @@ Do not re-record the baseline to make differences disappear. Re-baseline only af
 - Treating the baseline as truth: it records current behavior, including current bugs. Fixing a bug is an intended difference that must be documented.
 - Sensitive data in the corpus.
 
-Record findings about unexpected behavior differences in `.harness/memory/lessons.md`.
+Record findings about unexpected behavior differences in `.jow/memory/lessons.md`.

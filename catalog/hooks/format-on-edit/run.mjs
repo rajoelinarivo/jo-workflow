@@ -4,7 +4,7 @@ import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 
 const input = JSON.parse(fs.readFileSync(0, "utf8") || "{}");
-const { formatters = {} } = JSON.parse(fs.readFileSync(".harness/harness.json", "utf8"));
+const { formatters = {} } = JSON.parse(fs.readFileSync(".jow/harness.json", "utf8"));
 
 const toRegex = (glob) => {
   const src = glob

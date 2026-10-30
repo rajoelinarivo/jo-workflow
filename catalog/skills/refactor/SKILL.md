@@ -12,7 +12,7 @@ Rule: behavior after == behavior before. If behavior must change, that is a sepa
 ## 1. Define the goal
 - State what is wrong (duplication, long function, tangled dependency, unclear names, hard to test) and what the target shape is.
 - Define the boundary: which files/modules are in scope. Everything else is out.
-- Check `.harness/memory/conventions.md` and `architecture.md` so the target shape matches the project.
+- Check `.jow/memory/conventions.md` and `architecture.md` so the target shape matches the project.
 
 ## 2. Pin behavior (characterization tests)
 - Run `{{commands.test}}` and confirm green before touching anything. If red, stop and report; do not refactor on a red baseline.
@@ -48,7 +48,7 @@ Do not mix formatting-only changes with structural ones; they hide real diffs.
 - Target shape reached; all tests and baselines unchanged and green.
 - Diff contains only structural changes, split into steps of one refactoring kind each.
 - Found bugs reported, not silently fixed.
-- New structural conventions recorded in `.harness/memory/conventions.md`; non-obvious traps in `lessons.md`.
+- New structural conventions recorded in `.jow/memory/conventions.md`; non-obvious traps in `lessons.md`.
 
 ## Pitfalls
 - Big-bang rewrites labeled as refactors.

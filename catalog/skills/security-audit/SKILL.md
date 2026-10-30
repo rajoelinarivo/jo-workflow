@@ -61,4 +61,4 @@ Include tool outputs summary, what was out of scope, and false positives dismiss
 - Printing discovered secret values in the report; mask them.
 - Ignoring transitive dependencies and container base images.
 
-Record accepted risks and security decisions in `.harness/memory/decisions.md`; recurring pitfalls in `.harness/memory/lessons.md`. Never write secrets to memory files.
+Record accepted risks and security decisions in `.jow/memory/decisions.md`; recurring pitfalls in `.jow/memory/lessons.md`. Never write secrets to memory files.

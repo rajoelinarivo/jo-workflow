@@ -21,7 +21,7 @@ Do not scaffold until the goal and the first increment fit in two sentences.
 ## 2. Choose the stack
 - List 2–3 candidate stacks. Compare on: fit to the problem, team familiarity, ecosystem maturity, build/test tooling, deployment fit.
 - Prefer the boring, well-supported option. Pick the official or most widely used project generator for that ecosystem (e.g. the language's package manager init command or framework CLI).
-- Write the choice and its justification as an ADR in `.harness/memory/decisions.md` (date, context, decision, alternatives, consequences). For a deep comparison use the `solution-research` skill first.
+- Write the choice and its justification as an ADR in `.jow/memory/decisions.md` (date, context, decision, alternatives, consequences). For a deep comparison use the `solution-research` skill first.
 
 ## 3. Scaffold the minimal skeleton
 - Generate with the ecosystem's standard tool, then trim anything not needed for the first increment.
@@ -37,9 +37,9 @@ Do not scaffold until the goal and the first increment fit in two sentences.
 - Separate unit and integration test commands if the stack makes it easy; otherwise leave them empty.
 
 ## 5. Register the harness
-- Fill `.harness/memory/project.md`: purpose, users, stack, entry points, how to run locally, external dependencies. Replace every TODO you can answer; leave the rest explicit.
-- Set the commands in `.harness/harness.json` (`install`, `build`, `test`, `test-unit`, `test-integration`, `lint`, `typecheck`, `format`, `bench`). Run `jo-workflow detect` to propose them from the detected stack, review the result, then run `jo-workflow sync` to regenerate the per-system files.
-- Record stack-specific conventions (naming, layout, error handling) in `.harness/memory/conventions.md`.
+- Fill `.jow/memory/project.md`: purpose, users, stack, entry points, how to run locally, external dependencies. Replace every TODO you can answer; leave the rest explicit.
+- Set the commands in `.jow/harness.json` (`install`, `build`, `test`, `test-unit`, `test-integration`, `lint`, `typecheck`, `format`, `bench`). Run `jo-workflow detect` to propose them from the detected stack, review the result, then run `jo-workflow sync` to regenerate the per-system files.
+- Record stack-specific conventions (naming, layout, error handling) in `.jow/memory/conventions.md`.
 
 ## 6. Verify
 Run in order and fix until each succeeds on a clean checkout:
@@ -59,4 +59,4 @@ Run in order and fix until each succeeds on a clean checkout:
 - Over-scaffolding: auth, ORM, queues and Docker before the first feature exists. Add them when a feature needs them.
 - Choosing a stack for novelty. Justify against the criteria, not taste.
 - Unpinned dependencies or a missing lockfile: builds drift.
-- Forgetting to sync after editing `.harness/`: the agent systems keep stale commands.
+- Forgetting to sync after editing `.jow/`: the agent systems keep stale commands.
